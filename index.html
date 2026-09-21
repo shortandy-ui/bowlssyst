@@ -1,0 +1,2149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bowls Club — Availability &amp; Selection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green-deep:#14352A;
+    --green-mid:#1F4D3A;
+    --green-rink:#2E6E4E;
+    --green-line:#3E7C58;
+    --cream:#F3EEDD;
+    --card:#FBF8EE;
+    --ink:#1C2621;
+    --ink-soft:#4B564D;
+    --brass:#B98B33;
+    --brass-light:#E4C077;
+    --rust:#9C4A34;
+    --line:#D9D0B5;
+    --white:#ffffff;
+    --radius:14px;
+    --shadow:0 2px 10px rgba(20,53,42,0.10), 0 1px 2px rgba(20,53,42,0.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--cream);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(30,77,58,0.06) 1px, transparent 1px);
+    background-size: 22px 22px;
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  #app{max-width:900px;margin:0 auto;padding:0 16px 60px;}
+  h1,h2,h3{font-family:'Fraunces',serif;margin:0;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;}
+  button{font-family:'Inter',sans-serif;cursor:pointer;border:none;}
+  button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible{
+    outline:3px solid var(--brass); outline-offset:2px;
+  }
+  input,select{
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    padding:9px 11px;
+    border-radius:8px;
+    border:1.5px solid var(--line);
+    background:var(--white);
+    color:var(--ink);
+    width:100%;
+  }
+  label{font-size:12.5px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px;}
+  .field{margin-bottom:14px;}
+  .btn{
+    padding:10px 18px;border-radius:9px;font-weight:600;font-size:14.5px;
+    transition:transform .12s ease, box-shadow .12s ease, background .15s ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--green-mid);color:var(--card);}
+  .btn-primary:hover{background:var(--green-deep);}
+  .btn-brass{background:var(--brass);color:var(--green-deep);}
+  .btn-brass:hover{background:var(--brass-light);}
+  .btn-ghost{background:transparent;color:var(--green-deep);border:1.5px solid var(--green-line);}
+  .btn-ghost:hover{background:rgba(30,77,58,0.08);}
+  .btn-rust{background:transparent;color:var(--rust);border:1.5px solid var(--rust);}
+  .btn-rust:hover{background:rgba(156,74,52,0.10);}
+  .btn-sm{padding:6px 11px;font-size:13px;border-radius:7px;}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+
+  /* ===== Top bar ===== */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 0 14px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-badge{
+    width:42px;height:42px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--green-line), var(--green-deep) 70%);
+    box-shadow:inset 0 0 0 3px rgba(255,255,255,0.18), var(--shadow);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--brass-light);font-family:'Fraunces',serif;font-weight:800;font-size:15px;
+    flex-shrink:0;
+  }
+  .brand h1{font-size:19px;color:var(--green-deep);line-height:1.15;}
+  .brand .sub{font-size:12px;color:var(--ink-soft);font-weight:600;letter-spacing:.03em;}
+  .role-pill{
+    background:var(--green-deep);color:var(--brass-light);
+    padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;
+    letter-spacing:.03em;text-transform:uppercase;
+  }
+  .topbar-actions{display:flex;align-items:center;gap:10px;}
+
+  /* ===== Login ===== */
+  .login-wrap{display:flex;justify-content:center;padding-top:8vh;}
+  .login-card{
+    background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:34px 30px 28px;width:100%;max-width:400px;position:relative;
+    border:1px solid rgba(20,53,42,0.06);
+  }
+  .pin{
+    position:absolute;top:-9px;left:50%;transform:translateX(-50%);
+    width:16px;height:16px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #E8654F, var(--rust) 75%);
+    box-shadow:0 3px 5px rgba(0,0,0,0.25);
+  }
+  .login-header{text-align:center;margin-bottom:22px;}
+  .login-header h2{font-size:23px;color:var(--green-deep);}
+  .login-header p{font-size:13px;color:var(--ink-soft);margin-top:6px;}
+  .role-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;background:rgba(30,77,58,0.07);padding:4px;border-radius:10px;}
+  .role-tab{
+    flex:1 1 40%;padding:8px 4px;text-align:center;border-radius:7px;font-size:13px;font-weight:600;
+    background:transparent;color:var(--ink-soft);
+  }
+  .role-tab.active{background:var(--green-mid);color:var(--card);}
+  .login-error{color:var(--rust);font-size:13px;font-weight:600;margin:-6px 0 12px;}
+  .hint{font-size:11.5px;color:var(--ink-soft);margin-top:14px;text-align:center;line-height:1.5;}
+
+  /* ===== Match card ===== */
+  .section-title{
+    display:flex;align-items:baseline;gap:10px;margin:26px 0 12px;
+  }
+  .section-title h2{font-size:18px;color:var(--green-deep);}
+  .section-title .count{font-size:12px;color:var(--ink-soft);font-weight:600;}
+  .empty{
+    background:var(--card);border:1.5px dashed var(--line);border-radius:var(--radius);
+    padding:30px 20px;text-align:center;color:var(--ink-soft);font-size:14px;
+  }
+  .match-card{
+    background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    margin-bottom:16px;overflow:hidden;border:1px solid rgba(20,53,42,0.06);
+  }
+  .match-card.past{opacity:.62;}
+  .match-head{
+    background:linear-gradient(120deg, var(--green-deep), var(--green-mid));
+    color:var(--card);padding:14px 18px;display:flex;align-items:center;gap:14px;
+  }
+  .date-badge{
+    width:52px;height:52px;border-radius:50%;flex-shrink:0;
+    background:var(--brass);color:var(--green-deep);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;line-height:1;box-shadow:var(--shadow);
+  }
+  .date-badge .d{font-size:17px;font-weight:600;}
+  .date-badge .m{font-size:9px;letter-spacing:.05em;text-transform:uppercase;font-weight:600;}
+  .match-head-info h3{font-size:17px;color:var(--card);}
+  .match-head-info .meta{font-size:12.5px;color:var(--brass-light);margin-top:2px;font-weight:500;}
+  .match-body{padding:16px 18px 6px;}
+  .detail-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+    gap:10px 16px;margin-bottom:14px;
+  }
+  .detail-item .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;}
+  .detail-item .v{font-size:14px;font-weight:600;color:var(--ink);margin-top:2px;}
+  .boundary{
+    border:none;border-top:2px dashed var(--line);margin:10px 0 14px;
+  }
+  .avail-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+  .chip{
+    display:flex;align-items:center;gap:7px;background:var(--white);
+    border:1.5px solid var(--line);border-radius:20px;padding:5px 6px 5px 10px;font-size:13.5px;font-weight:600;
+  }
+  .bowl-badge{
+    width:20px;height:20px;border-radius:50%;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;color:var(--card);
+    box-shadow:inset 0 0 0 2px rgba(255,255,255,0.35);
+  }
+  .bowl-1{background:radial-gradient(circle at 35% 30%, #4C8F6B, var(--green-deep) 75%);}
+  .bowl-2{background:radial-gradient(circle at 35% 30%, #5B7FB5, #1F3A5C 75%);}
+  .bowl-3{background:radial-gradient(circle at 35% 30%, #8B6BB5, #4A2E63 75%);}
+  .bowl-S{background:radial-gradient(circle at 35% 30%, #C98A3F, #7A4A17 75%);}
+  .rink-group{margin-bottom:10px;}
+  .rink-group h5{font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--green-deep);font-weight:700;margin:0 0 6px;}
+  .chip .x{
+    background:transparent;color:var(--ink-soft);width:18px;height:18px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1;
+  }
+  .chip .x:hover{background:rgba(156,74,52,0.15);color:var(--rust);}
+  .row-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px;}
+  .inline-form{
+    background:rgba(30,77,58,0.06);border-radius:10px;padding:14px;margin:10px 0 14px;
+  }
+  .inline-form .fr{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+  .inline-form .fr .field{flex:1;min-width:140px;margin-bottom:0;}
+  .pos-choice{display:flex;gap:6px;}
+  .pos-btn{
+    flex:1;padding:9px 4px;border-radius:8px;border:1.5px solid var(--line);background:var(--white);
+    font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;color:var(--ink-soft);
+  }
+  .pos-btn.active{background:var(--green-mid);border-color:var(--green-mid);color:var(--card);}
+
+  /* selection panel */
+  .sel-row{
+    display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);
+    flex-wrap:wrap;
+  }
+  .sel-row:last-child{border-bottom:none;}
+  .sel-name{flex:1;min-width:110px;font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px;}
+  .seg{display:flex;background:var(--white);border:1.5px solid var(--line);border-radius:8px;overflow:hidden;}
+  .seg button{padding:7px 10px;font-size:12px;font-weight:600;background:transparent;color:var(--ink-soft);border-right:1px solid var(--line);}
+  .seg button:last-child{border-right:none;}
+  .seg button.on-playing{background:var(--green-mid);color:var(--card);}
+  .seg button.on-reserve{background:var(--rust);color:var(--card);}
+  .pos-select{width:64px;padding:7px;font-family:'IBM Plex Mono',monospace;font-weight:700;}
+
+  .teamsheet{
+    background:linear-gradient(180deg, rgba(185,139,51,0.10), transparent 40%);
+    border:1.5px solid var(--brass-light);border-radius:10px;padding:14px 16px;margin:10px 0 14px;
+  }
+  .teamsheet h4{font-family:'Fraunces',serif;font-size:15px;color:var(--green-deep);margin:0 0 8px;}
+  .ts-list{list-style:none;padding:0;margin:0 0 4px;display:flex;flex-direction:column;gap:6px;}
+  .ts-list li{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600;}
+  .ts-saved{font-size:11px;color:var(--ink-soft);margin-top:8px;}
+  .reserve-tag{font-size:10px;font-weight:700;color:var(--rust);text-transform:uppercase;letter-spacing:.03em;}
+  .status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;flex-shrink:0;}
+  .status-pending{background:rgba(185,139,51,0.18);color:#7A5A1E;}
+  .status-approved{background:rgba(46,110,78,0.15);color:var(--green-deep);}
+  .status-rejected{background:rgba(156,74,52,0.15);color:var(--rust);}
+  .booking-card{
+    background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:14px 16px;margin-bottom:12px;border:1px solid rgba(20,53,42,0.06);
+  }
+  .booking-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;}
+  .booking-meta{font-size:13px;color:var(--ink-soft);line-height:1.6;}
+
+  /* modal */
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(20,38,29,0.55);display:flex;align-items:flex-start;justify-content:center;
+    padding:5vh 16px;overflow-y:auto;z-index:50;
+  }
+  .modal{
+    background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    width:100%;max-width:480px;padding:24px 24px 20px;
+  }
+  .modal h3{font-size:19px;color:var(--green-deep);margin-bottom:16px;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:6px;}
+  .toast{
+    position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+    background:var(--green-deep);color:var(--card);padding:10px 18px;border-radius:9px;
+    font-size:13.5px;font-weight:600;box-shadow:var(--shadow);z-index:80;
+  }
+  .settings-box{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-top:20px;}
+  .storage-note{
+    font-size:11.5px;color:var(--ink-soft);text-align:center;margin-top:22px;line-height:1.5;
+  }
+  @media (max-width:520px){
+    .two-col{grid-template-columns:1fr;}
+    .match-head{flex-wrap:wrap;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  const POSITIONS = {"1":{label:"Lead",cls:"bowl-1"}, "2":{label:"Second",cls:"bowl-2"}, "3":{label:"Third",cls:"bowl-3"}, "S":{label:"Skip",cls:"bowl-S"}};
+  const MAX_RINKS_FOR_SELECTION = 6;
+  const MAX_PLAYERS_PER_RINK = 4;
+  function rinkCountForMatch(m){
+    const n = Number(m.rinks);
+    if(!n || n<1) return MAX_RINKS_FOR_SELECTION;
+    return Math.min(n, MAX_RINKS_FOR_SELECTION);
+  }
+  const todayStr = new Date().toISOString().slice(0,10);
+
+  // This app keeps all data in memory for the browser session only — no platform
+  // storage bridge involved, so nothing here can fail the way shared storage did.
+  // Use Export / Import (in Admin > Settings) to carry data between sessions on
+  // this device.
+  const memoryStore = {};
+  const storage = {
+    async get(key){
+      if(!(key in memoryStore)) throw new Error("not found");
+      return {key, value: memoryStore[key]};
+    },
+    async set(key, value){
+      memoryStore[key] = value;
+      return {key, value};
+    },
+    async delete(key){
+      delete memoryStore[key];
+      return {key, deleted:true};
+    }
+  };
+
+  const state = {
+    booted:false,
+    role:null,
+    loginTab:"player",
+    loginPwd:"",
+    loginError:"",
+    config:null,
+    matches:[],
+    toast:"",
+    modal:null,          // 'addMatch' | 'editMatch'
+    modalDraft:null,
+    expanded:{},         // matchId -> 'avail' | 'select' | null
+    availDraft:{name:"", position:"1"},
+    selDraft:null,       // { entryId: {status, position} }
+    settingsDraft:null,
+    monthFilter:"",
+    resetConfirmText:"",
+    leagues:null,           // array of 6 {leagueName, teamName, players[]}
+    leaguesDraft:null,
+    confirmDialog:null,     // {message, resolve}
+    club:null,              // {clubName, logoDataUrl, rinkCount}
+    clubDraft:null,
+    adminPanel:null,        // null | 'hub' | 'branding' | 'rinks' | 'officers' | 'leagues' | 'settings'
+    officers:[],            // [{id, role, name, phone, email}]
+    officerModal:null,      // 'add' | 'edit'
+    officerModalDraft:null,
+    mainView:"fixtures",    // 'fixtures' | 'bookings' | 'officers' — not used for committee role
+    bookings:[],            // [{id,date,session,rink,requesterName,purpose,status,requestedAt,decidedAt,decidedNote}]
+    bookingMonthFilter:"",
+    bookingDraft:null,
+    rejectTarget:null,      // booking id currently being rejected
+    rejectReasonText:"",
+    maintenanceSlots:[],    // [{id, day, timeLabel, sessionsBlocked:[], note}]
+    maintenanceModal:null,  // 'add' | 'edit'
+    maintenanceModalDraft:null,
+  };
+
+  function render(){ App.innerHTML = ""; App.appendChild(buildRoot()); }
+  const App = document.getElementById("app");
+
+  function showToast(msg){
+    state.toast = msg;
+    render();
+    setTimeout(()=>{ state.toast=""; render(); }, 2200);
+  }
+
+  // In-app confirm dialog, used instead of the browser's native confirm() —
+  // some preview/embedded environments silently block native confirm/alert
+  // popups, which makes destructive actions look like they do nothing.
+  function askConfirm(message){
+    return new Promise((resolve)=>{
+      state.confirmDialog = { message, resolve };
+      render();
+    });
+  }
+  function buildConfirmDialog(){
+    const { message, resolve } = state.confirmDialog;
+    const backdrop = el("div",{class:"modal-backdrop"});
+    const modal = el("div",{class:"modal", style:"max-width:380px;"});
+    modal.appendChild(el("h3",{style:"font-size:17px;"},["Please confirm"]));
+    modal.appendChild(el("p",{style:"font-size:14px;color:var(--ink);line-height:1.5;margin:0 0 18px;"},[message]));
+    const actions = el("div",{class:"modal-actions"});
+    actions.appendChild(el("button",{class:"btn btn-ghost", onclick:()=>{
+      state.confirmDialog = null; resolve(false); render();
+    }},["Cancel"]));
+    actions.appendChild(el("button",{class:"btn btn-rust", onclick:()=>{
+      state.confirmDialog = null; resolve(true); render();
+    }},["Confirm"]));
+    modal.appendChild(actions);
+    backdrop.appendChild(modal);
+    return backdrop;
+  }
+
+  // ---------- storage helpers ----------
+  async function loadConfig(){
+    try{
+      const r = await storage.get("roles-config");
+      return JSON.parse(r.value);
+    }catch(e){
+      const def = {adminPassword:"3", captainPassword:"2", playerPassword:"1", committeePassword:"4"};
+      try{ await storage.set("roles-config", JSON.stringify(def)); }catch(e2){}
+      return def;
+    }
+  }
+  async function saveConfig(cfg){
+    await storage.set("roles-config", JSON.stringify(cfg));
+  }
+  function blankLeagues(){
+    return Array.from({length:6}, ()=>({leagueName:"", teamName:"", players:[]}));
+  }
+  async function loadLeagues(){
+    try{
+      const r = await storage.get("leagues-config");
+      const arr = JSON.parse(r.value);
+      // pad/truncate defensively to exactly 6 slots
+      const out = blankLeagues();
+      for(let i=0;i<6;i++) if(arr[i]) out[i] = {leagueName:arr[i].leagueName||"", teamName:arr[i].teamName||"", players:arr[i].players||[]};
+      return out;
+    }catch(e){
+      return blankLeagues();
+    }
+  }
+  async function saveLeagues(arr){
+    await storage.set("leagues-config", JSON.stringify(arr));
+  }
+  function blankClub(){
+    return {clubName:"Bowls Club", logoDataUrl:"", rinkCount:4, bookingWindowStart:"", bookingWindowEnd:""};
+  }
+  async function loadClub(){
+    try{
+      const r = await storage.get("club-config");
+      const c = JSON.parse(r.value);
+      return {
+        clubName: c.clubName || "Bowls Club",
+        logoDataUrl: c.logoDataUrl || "",
+        rinkCount: (c.rinkCount>=4 && c.rinkCount<=8) ? c.rinkCount : 4,
+        bookingWindowStart: c.bookingWindowStart || "",
+        bookingWindowEnd: c.bookingWindowEnd || ""
+      };
+    }catch(e){
+      return blankClub();
+    }
+  }
+  async function saveClub(cfg){
+    await storage.set("club-config", JSON.stringify(cfg));
+  }
+  async function loadMaintenance(){
+    try{
+      const r = await storage.get("maintenance-list");
+      const arr = JSON.parse(r.value);
+      return Array.isArray(arr) ? arr : [];
+    }catch(e){
+      return [];
+    }
+  }
+  async function saveMaintenance(arr){
+    await storage.set("maintenance-list", JSON.stringify(arr));
+  }
+  async function loadOfficers(){
+    try{
+      const r = await storage.get("officers-list");
+      const arr = JSON.parse(r.value);
+      return Array.isArray(arr) ? arr : [];
+    }catch(e){
+      return [];
+    }
+  }
+  async function saveOfficers(arr){
+    await storage.set("officers-list", JSON.stringify(arr));
+  }
+  async function loadBookings(){
+    try{
+      const r = await storage.get("bookings-list");
+      const arr = JSON.parse(r.value);
+      return Array.isArray(arr) ? arr : [];
+    }catch(e){
+      return [];
+    }
+  }
+  async function saveBookings(arr){
+    await storage.set("bookings-list", JSON.stringify(arr));
+  }
+  async function loadIndex(){
+    try{
+      const r = await storage.get("match-index");
+      return JSON.parse(r.value);
+    }catch(e){ return []; }
+  }
+  async function saveIndex(ids){
+    await storage.set("match-index", JSON.stringify(ids));
+  }
+  async function loadMatch(id){
+    const r = await storage.get("match:"+id);
+    return JSON.parse(r.value);
+  }
+  async function saveMatch(m){
+    await storage.set("match:"+m.id, JSON.stringify(m));
+  }
+  async function deleteMatchStorage(id){
+    try{ await storage.delete("match:"+id); }catch(e){}
+    const idx = await loadIndex();
+    await saveIndex(idx.filter(x=>x!==id));
+  }
+  async function resetSeason(){
+    const idx = await loadIndex();
+    for(const id of idx){
+      try{ await storage.delete("match:"+id); }catch(e){ /* continue clearing the rest */ }
+    }
+    await saveIndex([]);
+    state.matches = [];
+    state.monthFilter = "";
+  }
+  async function loadAllMatches(){
+    const idx = await loadIndex();
+    const out = [];
+    for(const id of idx){
+      try{ out.push(await loadMatch(id)); }catch(e){}
+    }
+    out.sort((a,b)=> a.date.localeCompare(b.date));
+    return out;
+  }
+
+  async function boot(){
+    try{
+      state.config = await loadConfig();
+      state.leagues = await loadLeagues();
+      state.club = await loadClub();
+      state.officers = await loadOfficers();
+      state.bookings = await loadBookings();
+      state.maintenanceSlots = await loadMaintenance();
+      state.matches = await loadAllMatches();
+      if(state.matches.length===0){
+        const sample = {
+          id: cryptoId(), date: sampleDate(), opponent:"Hatfield Town", homeAway:"Home",
+          time:"2:00pm", matchType:"Friendly", kit:"Club",
+          rinks:4, format:"Mens triples", captainName:"Pat Fisher", captainContact:"07700 900123",
+          availability:[
+            {id:cryptoId(), name:"Sam Carter", position:"1"},
+            {id:cryptoId(), name:"Jo Bennett", position:"2"},
+            {id:cryptoId(), name:"Alex Reid", position:"S"}
+          ],
+          selection:null
+        };
+        await saveMatch(sample);
+        await saveIndex([sample.id]);
+        state.matches = [sample];
+      }
+      state.bootError = null;
+    }catch(err){
+      state.bootError = (err && err.message) ? err.message : String(err);
+      state.config = state.config || {adminPassword:"3", captainPassword:"2", playerPassword:"1", committeePassword:"4"};
+      state.leagues = state.leagues || blankLeagues();
+      state.club = state.club || blankClub();
+      state.officers = state.officers || [];
+      state.bookings = state.bookings || [];
+      state.maintenanceSlots = state.maintenanceSlots || [];
+      state.matches = state.matches || [];
+    }
+    state.booted = true;
+    document.title = state.club.clubName + " — Availability & Selection";
+    render();
+  }
+  function sampleDate(){
+    const d = new Date();
+    d.setDate(d.getDate()+7);
+    return d.toISOString().slice(0,10);
+  }
+
+  // ---------- helpers ----------
+  function fmtDateBadge(dateStr){
+    const dt = new Date(dateStr+"T00:00:00");
+    if(isNaN(dt)) return {d:"--", m:"---"};
+    return { d: String(dt.getDate()), m: dt.toLocaleString("en-GB",{month:"short"}).toUpperCase() };
+  }
+  function fmtDateLong(dateStr){
+    const dt = new Date(dateStr+"T00:00:00");
+    if(isNaN(dt)) return dateStr;
+    return dt.toLocaleDateString("en-GB",{weekday:"long", day:"numeric", month:"long", year:"numeric"});
+  }
+  function el(tag, attrs, children){
+    const e = document.createElement(tag);
+    if(attrs) for(const k in attrs){
+      if(attrs[k]===null || attrs[k]===undefined) continue;
+      if(k==="class") e.className = attrs[k];
+      else if(k==="html") e.innerHTML = attrs[k];
+      else if(k.startsWith("on")) e.addEventListener(k.slice(2), attrs[k]);
+      else e.setAttribute(k, attrs[k]);
+    }
+    (children||[]).forEach(c=>{ if(c) e.appendChild(typeof c==="string"?document.createTextNode(c):c); });
+    return e;
+  }
+  function bowlBadge(pos){
+    const p = POSITIONS[pos] || {label:pos, cls:"bowl-1"};
+    return el("span",{class:"bowl-badge "+p.cls, title:p.label},[pos]);
+  }
+
+  // ---------- ROOT ----------
+  function buildRoot(){
+    const wrap = el("div",{});
+    if(!state.booted){
+      wrap.appendChild(el("div",{style:"padding:40px;text-align:center;color:var(--ink-soft);"},["Loading the noticeboard…"]));
+      return wrap;
+    }
+    if(!state.role){
+      wrap.appendChild(buildLogin());
+      wrap.appendChild(buildStorageBanner());
+      if(state.toast) wrap.appendChild(el("div",{class:"toast"},[state.toast]));
+      return wrap;
+    }
+    wrap.appendChild(buildTopbar());
+    wrap.appendChild(buildStorageBanner());
+
+    if(state.role==="committee"){
+      wrap.appendChild(buildCommitteeQueue());
+    }else if(state.role==="admin" && state.adminPanel){
+      wrap.appendChild(buildAdminArea());
+    }else{
+      wrap.appendChild(buildViewTabs());
+      if(state.mainView==="bookings"){
+        wrap.appendChild(buildBookingTab());
+      }else if(state.mainView==="officers"){
+        wrap.appendChild(buildOfficersView());
+      }else{
+        if(state.role==="admin") wrap.appendChild(buildAdminAdd());
+        wrap.appendChild(buildMatchList());
+      }
+    }
+
+    if(state.modal) wrap.appendChild(buildModal());
+    if(state.officerModal) wrap.appendChild(buildOfficerModal());
+    if(state.rejectTarget) wrap.appendChild(buildRejectModal());
+    if(state.maintenanceModal) wrap.appendChild(buildMaintenanceModal());
+    if(state.confirmDialog) wrap.appendChild(buildConfirmDialog());
+    if(state.toast) wrap.appendChild(el("div",{class:"toast"},[state.toast]));
+    return wrap;
+  }
+  function buildViewTabs(){
+    const tabs = el("div",{style:"display:flex;gap:6px;background:rgba(30,77,58,0.07);padding:4px;border-radius:10px;margin-bottom:18px;"});
+    [["fixtures","Fixtures"],["bookings","Rink Booking"],["officers","Officers"]].forEach(([v,label])=>{
+      tabs.appendChild(el("button",{
+        class:"role-tab"+(state.mainView===v?" active":""), style:"flex:1;",
+        onclick:()=>{ state.mainView=v; render(); }
+      },[label]));
+    });
+    return tabs;
+  }
+
+  // ---------- LOGIN ----------
+  function buildLogin(){
+    const wrap = el("div",{class:"login-wrap"});
+    const card = el("div",{class:"login-card"});
+    card.appendChild(el("div",{class:"pin"}));
+    card.appendChild(el("div",{style:"display:flex;justify-content:center;margin-bottom:12px;"},[brandBadge(48)]));
+    card.appendChild(el("div",{class:"login-header"},[
+      el("h2",{},[state.club.clubName]),
+      el("p",{},["Availability & selection noticeboard"])
+    ]));
+    const tabs = el("div",{class:"role-tabs"});
+    ["player","captain","admin","committee"].forEach(r=>{
+      tabs.appendChild(el("button",{
+        class:"role-tab"+(state.loginTab===r?" active":""),
+        onclick:()=>{ state.loginTab=r; state.loginError=""; state.loginPwd=""; render(); }
+      },[r.charAt(0).toUpperCase()+r.slice(1)]));
+    });
+    card.appendChild(tabs);
+
+    const field = el("div",{class:"field"},[
+      el("label",{},["Password"]),
+      el("input",{
+        type:"password", placeholder:"Enter password", value:state.loginPwd,
+        oninput:(e)=>{ state.loginPwd = e.target.value; },
+        onkeydown:(e)=>{ if(e.key==="Enter") tryLogin(); }
+      })
+    ]);
+    card.appendChild(field);
+    if(state.loginError) card.appendChild(el("div",{class:"login-error"},[state.loginError]));
+    card.appendChild(el("button",{class:"btn btn-primary", style:"width:100%;", onclick:tryLogin},["Sign in"]));
+    card.appendChild(el("div",{class:"hint"},["Ask your fixture secretary if you don't know your role's password."]));
+    wrap.appendChild(card);
+    return wrap;
+  }
+  function tryLogin(){
+    const map = {player:"playerPassword", captain:"captainPassword", admin:"adminPassword", committee:"committeePassword"};
+    const key = map[state.loginTab];
+    if(state.loginPwd && state.config[key] === state.loginPwd){
+      state.role = state.loginTab;
+      state.loginError = "";
+      state.loginPwd = "";
+      render();
+    }else{
+      state.loginError = "Incorrect password — try again.";
+      render();
+    }
+  }
+
+  function buildStorageBanner(){
+    return el("div",{style:"background:rgba(46,110,78,0.10);border:1.5px solid var(--green-line);border-radius:10px;"+
+      "padding:10px 14px;font-size:12.5px;color:var(--green-deep);font-weight:600;margin:14px 0;line-height:1.5;"},[
+      "This runs on this device only — nothing is shared with other people, and it clears if you close or reload the page. Use Export data (Admin \u2192 Settings) to save a backup file, and Import data to bring it back next time."
+    ]);
+  }
+
+  // ---------- TOPBAR ----------
+  function clubInitials(name){
+    const words = (name||"Bowls Club").trim().split(/\s+/).filter(Boolean);
+    if(words.length===0) return "BC";
+    if(words.length===1) return words[0].slice(0,2).toUpperCase();
+    return (words[0][0]+words[1][0]).toUpperCase();
+  }
+  function brandBadge(sizePx){
+    sizePx = sizePx || 42;
+    if(state.club && state.club.logoDataUrl){
+      const img = document.createElement("img");
+      img.src = state.club.logoDataUrl;
+      img.alt = "Club logo";
+      img.style.cssText = "width:"+sizePx+"px;height:"+sizePx+"px;object-fit:contain;border-radius:50%;background:#fff;box-shadow:var(--shadow);flex-shrink:0;padding:2px;";
+      return img;
+    }
+    const badge = el("div",{class:"brand-badge"},[clubInitials(state.club && state.club.clubName)]);
+    if(sizePx!==42) badge.style.cssText += "width:"+sizePx+"px;height:"+sizePx+"px;";
+    return badge;
+  }
+
+  function buildTopbar(){
+    const bar = el("div",{class:"topbar"});
+    bar.appendChild(el("div",{class:"brand"},[
+      brandBadge(42),
+      el("div",{},[
+        el("h1",{},[state.club.clubName]),
+        el("div",{class:"sub"},["Availability & Selection"])
+      ])
+    ]));
+    const actions = el("div",{class:"topbar-actions"});
+    actions.appendChild(el("span",{class:"role-pill"},[state.role]));
+    if(state.role==="admin"){
+      actions.appendChild(el("button",{class:"btn btn-ghost btn-sm", onclick:()=>{
+        state.adminPanel = state.adminPanel ? null : "hub";
+        render();
+      }},[state.adminPanel ? "Close admin" : "Admin menu"]));
+    }
+    actions.appendChild(el("button",{class:"btn btn-ghost btn-sm", onclick:()=>{ state.role=null; state.expanded={}; render(); }},["Log out"]));
+    bar.appendChild(actions);
+    return bar;
+  }
+
+  // ---------- ADMIN HUB ----------
+  function buildPanelHeader(title, subtitle){
+    const wrap = el("div",{style:"margin-bottom:16px;"});
+    wrap.appendChild(el("button",{class:"btn btn-ghost btn-sm", style:"margin-bottom:14px;",
+      onclick:()=>{ state.adminPanel="hub"; render(); }},["← Admin menu"]));
+    wrap.appendChild(el("h3",{style:"font-size:16px;color:var(--green-deep);margin-bottom:4px;"},[title]));
+    if(subtitle) wrap.appendChild(el("p",{style:"font-size:13px;color:var(--ink-soft);margin:0;line-height:1.5;"},[subtitle]));
+    return wrap;
+  }
+  const ADMIN_HUB_ITEMS = [
+    {key:"branding", title:"Club Branding", desc:"Club name and logo."},
+    {key:"rinks", title:"Rinks & Booking Rules", desc:"Number of rinks, booking window, weekly maintenance."},
+    {key:"officers", title:"Club Officers", desc:"Chairman, secretary, treasurer and other contacts."},
+    {key:"leagues", title:"Reg. Players", desc:"League rosters for restricted-entry fixtures."},
+    {key:"settings", title:"Settings", desc:"Role passwords, backups, and starting a new season."}
+  ];
+  function buildAdminHub(){
+    const box = el("div",{});
+    box.appendChild(el("div",{class:"section-title"},[
+      el("h2",{},["Admin menu"])
+    ]));
+    const grid = el("div",{style:"display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;"});
+    ADMIN_HUB_ITEMS.forEach(item=>{
+      const card = el("button",{
+        style:"text-align:left;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);"+
+          "border:1px solid rgba(20,53,42,0.06);padding:16px 18px;cursor:pointer;font-family:Inter,sans-serif;",
+        onclick:()=>{ state.adminPanel = item.key; render(); }
+      },[
+        el("div",{style:"font-weight:700;font-size:15px;color:var(--green-deep);margin-bottom:5px;"},[item.title]),
+        el("div",{style:"font-size:13px;color:var(--ink-soft);line-height:1.5;"},[item.desc])
+      ]);
+      grid.appendChild(card);
+    });
+    box.appendChild(grid);
+    return box;
+  }
+  function buildAdminArea(){
+    if(state.adminPanel==="branding") return buildBranding();
+    if(state.adminPanel==="rinks") return buildRinksBooking();
+    if(state.adminPanel==="officers") return buildOfficersAdmin();
+    if(state.adminPanel==="leagues") return buildLeagues();
+    if(state.adminPanel==="settings") return buildSettings();
+    return buildAdminHub();
+  }
+
+  // ---------- SETTINGS (admin) ----------
+  function buildSettings(){
+    if(!state.settingsDraft) state.settingsDraft = {...state.config};
+    const box = el("div",{class:"settings-box"});
+    box.appendChild(buildPanelHeader("Settings","Passwords, backups, and starting a new season."));
+
+    box.appendChild(el("h3",{style:"font-size:16px;color:var(--green-deep);margin-bottom:6px;"},["Save & load data"]));
+    box.appendChild(el("p",{style:"font-size:13px;color:var(--ink-soft);margin:0 0 12px;line-height:1.5;"},[
+      "Everything here lives only in this browser tab. Export a backup file before you close the page, and import it again next time to pick up where you left off."
+    ]));
+    const dataRow = el("div",{style:"display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px;"});
+    dataRow.appendChild(el("button",{class:"btn btn-ghost btn-sm", onclick:exportData},["Export data"]));
+    const importInput = el("input",{type:"file", accept:"application/json", style:"display:none;",
+      onchange:(e)=>{ if(e.target.files[0]) importData(e.target.files[0]); e.target.value=""; }});
+    dataRow.appendChild(el("button",{class:"btn btn-ghost btn-sm", onclick:()=>importInput.click()},["Import data"]));
+    dataRow.appendChild(importInput);
+    box.appendChild(dataRow);
+    box.appendChild(el("hr",{class:"boundary", style:"margin:0 0 18px;"}));
+
+    box.appendChild(el("h3",{style:"font-size:16px;color:var(--green-deep);margin-bottom:14px;"},["Role passwords"]));
+    const grid = el("div",{},[]);
+    [["adminPassword","Admin password"],["captainPassword","Captain password"],["playerPassword","Player password"],["committeePassword","Committee password"]].forEach(([k,label])=>{
+      grid.appendChild(el("div",{class:"field"},[
+        el("label",{},[label]),
+        el("input",{type:"text", value:state.settingsDraft[k], oninput:(e)=>{ state.settingsDraft[k]=e.target.value; }})
+      ]));
+    });
+    box.appendChild(grid);
+    box.appendChild(el("button",{class:"btn btn-brass", onclick: async ()=>{
+      try{
+        await saveConfig(state.settingsDraft);
+        state.config = {...state.settingsDraft};
+        showToast("Passwords updated.");
+      }catch(err){
+        console.error(err);
+        showToast("Could not save: "+(err.message||err));
+      }
+    }},["Save passwords"]));
+
+    box.appendChild(el("hr",{class:"boundary", style:"margin:22px 0 16px;"}));
+    box.appendChild(el("h3",{style:"font-size:16px;color:var(--rust);margin-bottom:6px;"},["Start a new season"]));
+    box.appendChild(el("p",{style:"font-size:13px;color:var(--ink-soft);margin:0 0 12px;line-height:1.5;"},[
+      "Permanently deletes every fixture, all availability and every team sheet, ready for next season's fixture list. Role passwords are kept. This cannot be undone."
+    ]));
+    box.appendChild(el("div",{class:"field"},[
+      el("label",{},["Type RESET to confirm"]),
+      el("input",{type:"text", value:state.resetConfirmText, placeholder:"RESET",
+        oninput:(e)=>{ state.resetConfirmText = e.target.value; }})
+    ]));
+    box.appendChild(el("button",{class:"btn btn-rust",
+      onclick: async ()=>{
+        if(state.resetConfirmText.trim().toUpperCase()!=="RESET"){
+          showToast("Type RESET first to confirm.");
+          return;
+        }
+        if(!(await askConfirm("Final check: delete ALL fixtures, availability and team sheets? This cannot be undone."))) return;
+        try{
+          await resetSeason();
+          state.resetConfirmText = "";
+          showToast("Ready for the new season — all fixtures cleared.");
+        }catch(err){
+          console.error(err);
+          showToast("Could not reset: "+(err.message||err));
+        }
+      }
+    },["Delete all current fixtures to start a new season"]));
+    return box;
+  }
+
+  // ---------- LEAGUES (restricted-entry player lists) ----------
+  function buildLeagues(){
+    if(!state.leaguesDraft){
+      state.leaguesDraft = state.leagues.map(l=>({
+        leagueName:l.leagueName, teamName:l.teamName, playersText:(l.players||[]).join("\n")
+      }));
+    }
+    const box = el("div",{class:"settings-box"});
+    box.appendChild(buildPanelHeader("Reg. Players",
+      "Set up to 6 leagues here. Fill in League name and Save, then go to Fixtures \u2192 Edit and pick it from the League dropdown that appears there \u2014 that's what restricts sign-up to the players listed below. This is separate from the fixture's \"Match type\" text field, which is just a label. Leave a league's name blank to leave that slot unused."));
+    for(let i=0;i<6;i++){
+      box.appendChild(buildLeagueSlot(i));
+      if(i<5) box.appendChild(el("hr",{class:"boundary"}));
+    }
+    return box;
+  }
+  function buildLeagueSlot(i){
+    const d = state.leaguesDraft[i];
+    const slot = el("div",{style:"margin-bottom:6px;"});
+    slot.appendChild(el("div",{style:"font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;margin-bottom:8px;"},
+      ["League "+(i+1)]));
+    const two = el("div",{class:"two-col"});
+    two.appendChild(el("div",{class:"field"},[
+      el("label",{},["League name — this exact name appears in the fixture's League dropdown"]),
+      el("input",{type:"text", value:d.leagueName, placeholder:"e.g. Herts Premier League",
+        oninput:(e)=>{ d.leagueName = e.target.value; }})
+    ]));
+    two.appendChild(el("div",{class:"field"},[
+      el("label",{},["Team name"]),
+      el("input",{type:"text", value:d.teamName, placeholder:"e.g. Club 1sts",
+        oninput:(e)=>{ d.teamName = e.target.value; }})
+    ]));
+    slot.appendChild(two);
+    slot.appendChild(el("div",{class:"field"},[
+      el("label",{},["Registered players (one per line, or paste a comma-separated list)"]),
+      (function(){
+        const ta = document.createElement("textarea");
+        ta.rows = 4;
+        ta.value = d.playersText;
+        ta.style.cssText = "width:100%;font-family:Inter,sans-serif;font-size:14px;padding:9px 11px;border-radius:8px;border:1.5px solid var(--line);background:#fff;color:var(--ink);resize:vertical;";
+        ta.placeholder = "Paste or type names — one per line, or separated by commas";
+        ta.addEventListener("input",(e)=>{ d.playersText = e.target.value; });
+        return ta;
+      })()
+    ]));
+    slot.appendChild(el("button",{class:"btn btn-brass btn-sm", onclick:()=>saveLeagueSlot(i)},["Save league "+(i+1)]));
+    return slot;
+  }
+  async function saveLeagueSlot(i){
+    const d = state.leaguesDraft[i];
+    const players = d.playersText.split(/[\n,;]+/).map(s=>s.trim()).filter(Boolean);
+    const full = state.leagues.map((l,idx)=> idx===i
+      ? {leagueName:d.leagueName.trim(), teamName:d.teamName.trim(), players}
+      : l);
+    try{
+      await saveLeagues(full);
+      state.leagues = full;
+      showToast(d.leagueName.trim() ? "\""+d.leagueName.trim()+"\" saved." : "League "+(i+1)+" cleared.");
+    }catch(err){
+      console.error(err);
+      showToast("Could not save: "+(err.message||err));
+    }
+  }
+
+  // ---------- CLUB SETUP (branding, per-club config) ----------
+  function buildBranding(){
+    if(!state.clubDraft) state.clubDraft = {...state.club};
+    const d = state.clubDraft;
+    const box = el("div",{class:"settings-box"});
+    box.appendChild(buildPanelHeader("Club branding","Club name and logo — shown on the login screen and the header."));
+
+    box.appendChild(el("div",{class:"field"},[
+      el("label",{},["Club name"]),
+      el("input",{type:"text", value:d.clubName, placeholder:"e.g. Datchworth Bowls Club",
+        oninput:(e)=>{ d.clubName = e.target.value; }})
+    ]));
+
+    const logoField = el("div",{class:"field"});
+    logoField.appendChild(el("label",{},["Club logo"]));
+    const logoRow = el("div",{style:"display:flex;align-items:center;gap:14px;flex-wrap:wrap;"});
+    if(d.logoDataUrl){
+      const img = document.createElement("img");
+      img.src = d.logoDataUrl;
+      img.alt = "Club logo";
+      img.style.cssText = "width:56px;height:56px;object-fit:contain;border-radius:10px;border:1.5px solid var(--line);background:#fff;padding:4px;";
+      logoRow.appendChild(img);
+    }
+    const logoInput = el("input",{type:"file", accept:"image/*", style:"display:none;",
+      onchange:(e)=>{
+        const file = e.target.files[0];
+        if(!file) return;
+        if(file.size > 800*1024){ showToast("That image is quite large — a smaller logo (under ~500KB) will keep things snappy."); }
+        const reader = new FileReader();
+        reader.onload = ()=>{ d.logoDataUrl = reader.result; render(); };
+        reader.readAsDataURL(file);
+      }});
+    const pickBtn = el("button",{class:"btn btn-ghost btn-sm", onclick:()=>logoInput.click()},[d.logoDataUrl?"Change logo":"Upload logo"]);
+    logoRow.appendChild(pickBtn);
+    logoRow.appendChild(logoInput);
+    if(d.logoDataUrl){
+      logoRow.appendChild(el("button",{class:"btn btn-ghost btn-sm", onclick:()=>{ d.logoDataUrl=""; render(); }},["Remove"]));
+    }
+    logoField.appendChild(logoRow);
+    box.appendChild(logoField);
+
+    box.appendChild(el("button",{class:"btn btn-brass", onclick: async ()=>{
+      try{
+        await saveClub(d);
+        state.club = {...d};
+        document.title = state.club.clubName + " — Availability & Selection";
+        showToast("Club branding saved.");
+      }catch(err){
+        console.error(err);
+        showToast("Could not save: "+(err.message||err));
+      }
+    }},["Save branding"]));
+    return box;
+  }
+
+  function buildRinksBooking(){
+    if(!state.clubDraft) state.clubDraft = {...state.club};
+    const d = state.clubDraft;
+    const box = el("div",{class:"settings-box"});
+    box.appendChild(buildPanelHeader("Rinks & booking rules","How many rinks you have, when booking requests are allowed, and recurring maintenance."));
+
+    box.appendChild(el("div",{class:"field", style:"max-width:200px;"},[
+      el("label",{},["Number of rinks"]),
+      (function(){
+        const sel = el("select",{onchange:(e)=>{ d.rinkCount = Number(e.target.value); }});
+        for(let n=4;n<=8;n++) sel.appendChild(el("option",{value:String(n), selected: d.rinkCount===n?"selected":null},[String(n)+" rinks"]));
+        return sel;
+      })()
+    ]));
+
+    box.appendChild(el("hr",{class:"boundary"}));
+    box.appendChild(el("h3",{style:"font-size:16px;color:var(--green-deep);margin-bottom:6px;"},["Rink booking window"]));
+    box.appendChild(el("p",{style:"font-size:13px;color:var(--ink-soft);margin:0 0 14px;line-height:1.5;"},[
+      "Restricts which dates members can request a rink for — useful for the outdoor season. Leave both blank to allow booking requests for any date."
+    ]));
+    const winRow = el("div",{class:"two-col"});
+    winRow.appendChild(el("div",{class:"field"},[
+      el("label",{},["Window opens"]),
+      el("input",{type:"date", value:d.bookingWindowStart, oninput:(e)=>{ d.bookingWindowStart = e.target.value; }})
+    ]));
+    winRow.appendChild(el("div",{class:"field"},[
+      el("label",{},["Window closes"]),
+      el("input",{type:"date", value:d.bookingWindowEnd, oninput:(e)=>{ d.bookingWindowEnd = e.target.value; }})
+    ]));
+    box.appendChild(winRow);
+
+    box.appendChild(el("button",{class:"btn btn-brass", onclick: async ()=>{
+      try{
+        await saveClub(d);
+        state.club = {...d};
+        showToast("Rink and booking settings saved.");
+      }catch(err){
+        console.error(err);
+        showToast("Could not save: "+(err.message||err));
+      }
+    }},["Save rink settings"]));
+
+    box.appendChild(el("hr",{class:"boundary"}));
+    box.appendChild(el("h3",{style:"font-size:16px;color:var(--green-deep);margin-bottom:6px;"},["Weekly rink maintenance"]));
+    box.appendChild(el("p",{style:"font-size:13px;color:var(--ink-soft);margin:0 0 14px;line-height:1.5;"},[
+      "Recurring slots — e.g. every Thursday 10:00–12:00 for green cutting — block booking requests for that day and session automatically. Saved immediately, separately from the settings above."
+    ]));
+    if(state.maintenanceSlots.length===0){
+      box.appendChild(el("div",{style:"font-size:13px;color:var(--ink-soft);margin-bottom:12px;"},["No recurring maintenance set up."]));
+    }else{
+      [...state.maintenanceSlots].sort((a,b)=> DAY_ORDER.indexOf(a.day)-DAY_ORDER.indexOf(b.day)).forEach(slot=>{
+        const row = el("div",{style:"display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);"});
+        const info = el("div",{});
+        info.appendChild(el("div",{style:"font-weight:700;font-size:14px;"},[
+          "Every "+slot.day+(slot.timeLabel?" · "+slot.timeLabel:"")
+        ]));
+        info.appendChild(el("div",{style:"font-size:12.5px;color:var(--ink-soft);margin-top:2px;"},[
+          "Blocks: "+(slot.sessionsBlocked.length ? slot.sessionsBlocked.join(", ") : "none selected")+(slot.note?" · "+slot.note:"")
+        ]));
+        row.appendChild(info);
+        const btns = el("div",{style:"display:flex;gap:6px;flex-shrink:0;"});
+        btns.appendChild(el("button",{class:"btn btn-ghost btn-sm", onclick:()=>openEditMaintenance(slot)},["Edit"]));
+        btns.appendChild(el("button",{class:"btn btn-rust btn-sm", onclick:()=>deleteMaintenance(slot)},["Delete"]));
+        row.appendChild(btns);
+        box.appendChild(row);
+      });
+    }
+    box.appendChild(el("button",{class:"btn btn-ghost btn-sm", style:"margin:12px 0 0;", onclick:openAddMaintenance},["+ Add maintenance period"]));
+    return box;
+  }
+
+  // ---------- WEEKLY RINK MAINTENANCE ----------
+  function blankMaintenanceDraft(){
+    return {id:null, day:"Thursday", timeLabel:"", sessionsBlocked:[], note:""};
+  }
+  function openAddMaintenance(){
+    state.maintenanceModal = "add";
+    state.maintenanceModalDraft = blankMaintenanceDraft();
+    render();
+  }
+  function openEditMaintenance(slot){
+    state.maintenanceModal = "edit";
+    state.maintenanceModalDraft = {...slot, sessionsBlocked:[...slot.sessionsBlocked]};
+    render();
+  }
+  function closeMaintenanceModal(){
+    state.maintenanceModal = null;
+    state.maintenanceModalDraft = null;
+    render();
+  }
+  function buildMaintenanceModal(){
+    const isEdit = state.maintenanceModal==="edit";
+    const d = state.maintenanceModalDraft;
+    const backdrop = el("div",{class:"modal-backdrop", onclick:(e)=>{ if(e.target===backdrop) closeMaintenanceModal(); }});
+    const modal = el("div",{class:"modal"});
+    modal.appendChild(el("h3",{},[isEdit?"Edit maintenance period":"Add maintenance period"]));
+
+    const two = el("div",{class:"two-col"});
+    two.appendChild(el("div",{class:"field"},[
+      el("label",{},["Day of week"]),
+      (function(){
+        const sel = el("select",{onchange:(e)=>{ d.day = e.target.value; }});
+        DAY_ORDER.forEach(day=> sel.appendChild(el("option",{value:day, selected:d.day===day?"selected":null},[day])));
+        return sel;
+      })()
+    ]));
+    two.appendChild(fieldInput("Time range (for reference)","timeLabel",d.timeLabel,"text","e.g. 10:00–12:00",d));
+    modal.appendChild(two);
+
+    modal.appendChild(el("div",{class:"field"},[
+      el("label",{},["Sessions blocked"])
+    ]));
+    const segRow = el("div",{style:"display:flex;gap:8px;margin:-8px 0 14px;"});
+    SESSIONS.forEach(s=>{
+      const active = d.sessionsBlocked.includes(s);
+      segRow.appendChild(el("button",{
+        class:"pos-btn"+(active?" active":""), style:"flex:1;",
+        onclick:()=>{
+          d.sessionsBlocked = active ? d.sessionsBlocked.filter(x=>x!==s) : [...d.sessionsBlocked, s];
+          render();
+        }
+      },[s]));
+    });
+    modal.appendChild(segRow);
+
+    modal.appendChild(fieldInput("Note (optional)","note",d.note,"text","e.g. Green cutting",d));
+
+    const actions = el("div",{class:"modal-actions"});
+    actions.appendChild(el("button",{class:"btn btn-ghost", onclick:closeMaintenanceModal},["Cancel"]));
+    actions.appendChild(el("button",{class:"btn btn-primary", onclick:submitMaintenanceModal},[isEdit?"Save changes":"Add period"]));
+    modal.appendChild(actions);
+    backdrop.appendChild(modal);
+    return backdrop;
+  }
+  async function submitMaintenanceModal(){
+    const d = state.maintenanceModalDraft;
+    if(d.sessionsBlocked.length===0){ showToast("Choose at least one session to block."); return; }
+    const isEdit = state.maintenanceModal==="edit";
+    const before = state.maintenanceSlots;
+    let updated;
+    if(isEdit){
+      updated = state.maintenanceSlots.map(s=> s.id===d.id ? {...d} : s);
+    }else{
+      updated = [...state.maintenanceSlots, {...d, id:cryptoId()}];
+    }
+    try{
+      await saveMaintenance(updated);
+      state.maintenanceSlots = updated;
+      closeMaintenanceModal();
+      showToast(isEdit ? "Maintenance period updated." : "Maintenance period added.");
+    }catch(err){
+      console.error(err);
+      state.maintenanceSlots = before;
+      showToast("Could not save: "+(err.message||err));
+    }
+  }
+  async function deleteMaintenance(slot){
+    if(!(await askConfirm("Remove the "+slot.day+" maintenance period?"))) return;
+    const before = state.maintenanceSlots;
+    const updated = state.maintenanceSlots.filter(s=>s.id!==slot.id);
+    try{
+      await saveMaintenance(updated);
+      state.maintenanceSlots = updated;
+      showToast("Maintenance period removed.");
+    }catch(err){
+      console.error(err);
+      state.maintenanceSlots = before;
+      showToast("Could not remove: "+(err.message||err));
+    }
+  }
+
+  // ---------- CLUB OFFICERS ----------
+  function buildOfficersAdmin(){
+    const box = el("div",{class:"settings-box"});
+    box.appendChild(buildPanelHeader("Club officers","Shown to everyone on the Officers tab, so members know who to contact."));
+
+    box.appendChild(el("button",{class:"btn btn-primary btn-sm", style:"margin-bottom:16px;", onclick:openAddOfficer},["+ Add officer"]));
+
+    const sorted = [...state.officers].sort((a,b)=> (a.role||"").localeCompare(b.role||""));
+    if(sorted.length===0){
+      box.appendChild(el("div",{class:"empty"},["No officers added yet."]));
+      return box;
+    }
+    sorted.forEach(o=>{
+      const row = el("div",{style:"display:flex;align-items:flex-start;justify-content:space-between;gap:12px;"+
+        "padding:12px 0;border-bottom:1px solid var(--line);"});
+      const info = el("div",{style:"flex:1;min-width:0;"});
+      info.appendChild(el("div",{style:"font-weight:700;font-size:14.5px;"},[o.role]));
+      const details = [o.name, o.phone, o.email].filter(Boolean).join(" · ");
+      if(details) info.appendChild(el("div",{style:"font-size:12.5px;color:var(--ink-soft);margin-top:3px;line-height:1.5;"},[details]));
+      row.appendChild(info);
+      const btns = el("div",{style:"display:flex;gap:6px;flex-shrink:0;"});
+      btns.appendChild(el("button",{class:"btn btn-ghost btn-sm", onclick:()=>openEditOfficer(o)},["Edit"]));
+      btns.appendChild(el("button",{class:"btn btn-rust btn-sm", onclick:()=>deleteOfficer(o)},["Delete"]));
+      row.appendChild(btns);
+      box.appendChild(row);
+    });
+    return box;
+  }
+  function buildOfficersView(){
+    const wrap = el("div",{});
+    wrap.appendChild(el("div",{class:"section-title"},[
+      el("h2",{},["Club Officers"]),
+      el("span",{class:"count"},[state.officers.length+" listed"])
+    ]));
+    if(state.officers.length===0){
+      wrap.appendChild(el("div",{class:"empty"},["No officers have been listed yet."]));
+      return wrap;
+    }
+    const sorted = [...state.officers].sort((a,b)=> (a.role||"").localeCompare(b.role||""));
+    sorted.forEach(o=>{
+      const card = el("div",{class:"booking-card"});
+      card.appendChild(el("div",{style:"font-weight:700;font-size:14.5px;"},[o.role]));
+      card.appendChild(el("div",{class:"booking-meta"},[o.name]));
+      const details = [o.phone, o.email].filter(Boolean).join(" · ");
+      if(details) card.appendChild(el("div",{class:"booking-meta"},[details]));
+      wrap.appendChild(card);
+    });
+    return wrap;
+  }
+  function blankOfficerDraft(){
+    return {id:null, role:"", name:"", phone:"", email:""};
+  }
+  function openAddOfficer(){
+    state.officerModal = "add";
+    state.officerModalDraft = blankOfficerDraft();
+    render();
+  }
+  function openEditOfficer(o){
+    state.officerModal = "edit";
+    state.officerModalDraft = {...o};
+    render();
+  }
+  function closeOfficerModal(){
+    state.officerModal = null;
+    state.officerModalDraft = null;
+    render();
+  }
+  function buildOfficerModal(){
+    const isEdit = state.officerModal==="edit";
+    const d = state.officerModalDraft;
+    const backdrop = el("div",{class:"modal-backdrop", onclick:(e)=>{ if(e.target===backdrop) closeOfficerModal(); }});
+    const modal = el("div",{class:"modal"});
+    modal.appendChild(el("h3",{},[isEdit?"Edit officer":"Add officer"]));
+    modal.appendChild(fieldInput("Role","role",d.role,"text","e.g. Chairman, Secretary, Treasurer",d));
+    modal.appendChild(fieldInput("Name","name",d.name,"text","e.g. Pat Fisher",d));
+    const two = el("div",{class:"two-col"});
+    two.appendChild(fieldInput("Telephone","phone",d.phone,"text","e.g. 07700 900123",d));
+    two.appendChild(fieldInput("Email","email",d.email,"email","e.g. pat@example.com",d));
+    modal.appendChild(two);
+    const actions = el("div",{class:"modal-actions"});
+    actions.appendChild(el("button",{class:"btn btn-ghost", onclick:closeOfficerModal},["Cancel"]));
+    actions.appendChild(el("button",{class:"btn btn-primary", onclick:submitOfficerModal},[isEdit?"Save changes":"Add officer"]));
+    modal.appendChild(actions);
+    backdrop.appendChild(modal);
+    return backdrop;
+  }
+  async function submitOfficerModal(){
+    const d = state.officerModalDraft;
+    if(!d.role.trim()){ showToast("Enter the officer's role."); return; }
+    if(!d.name.trim()){ showToast("Enter the officer's name."); return; }
+    const isEdit = state.officerModal==="edit";
+    const before = state.officers;
+    let updated;
+    if(isEdit){
+      updated = state.officers.map(o=> o.id===d.id
+        ? {id:d.id, role:d.role.trim(), name:d.name.trim(), phone:d.phone.trim(), email:d.email.trim()}
+        : o);
+    }else{
+      updated = [...state.officers, {id:cryptoId(), role:d.role.trim(), name:d.name.trim(), phone:d.phone.trim(), email:d.email.trim()}];
+    }
+    try{
+      await saveOfficers(updated);
+      state.officers = updated;
+      closeOfficerModal();
+      showToast(isEdit ? "Officer updated." : "Officer added.");
+    }catch(err){
+      console.error(err);
+      state.officers = before;
+      showToast("Could not save: "+(err.message||err));
+    }
+  }
+  async function deleteOfficer(o){
+    if(!(await askConfirm("Remove "+o.role+" ("+o.name+") from the officers list?"))) return;
+    const before = state.officers;
+    const updated = state.officers.filter(x=>x.id!==o.id);
+    try{
+      await saveOfficers(updated);
+      state.officers = updated;
+      showToast("Officer removed.");
+    }catch(err){
+      console.error(err);
+      state.officers = before;
+      showToast("Could not remove: "+(err.message||err));
+    }
+  }
+
+  // ---------- RINK BOOKING ----------
+  const SESSIONS = ["Morning","Afternoon","Evening"];
+  const DAY_ORDER = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+  function blankBookingDraft(){
+    return {date:todayStr, session:"Morning", rink:"1", requesterName:"", purpose:""};
+  }
+  function hasApprovedClash(bookings, date, session, rink, excludeId){
+    return bookings.some(b=> b.id!==excludeId && b.date===date && b.session===session && String(b.rink)===String(rink) && b.status==="approved");
+  }
+  function weekdayName(dateStr){
+    const dt = new Date(dateStr+"T00:00:00");
+    if(isNaN(dt)) return "";
+    return DAY_ORDER[(dt.getDay()+6)%7]; // getDay(): 0=Sun..6=Sat -> shift so Monday=0
+  }
+  function maintenanceClash(dateStr, session){
+    const day = weekdayName(dateStr);
+    return state.maintenanceSlots.find(slot=> slot.day===day && slot.sessionsBlocked.includes(session)) || null;
+  }
+
+  function buildBookingTab(){
+    const wrap = el("div",{});
+    if(state.maintenanceSlots.length){
+      const box = el("div",{style:"background:rgba(30,77,58,0.06);border-radius:10px;padding:12px 14px;margin-bottom:18px;"});
+      box.appendChild(el("div",{style:"font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;margin-bottom:6px;"},
+        ["Weekly rink maintenance"]));
+      [...state.maintenanceSlots].sort((a,b)=>DAY_ORDER.indexOf(a.day)-DAY_ORDER.indexOf(b.day)).forEach(slot=>{
+        box.appendChild(el("div",{style:"font-size:13px;color:var(--ink);line-height:1.6;"},
+          ["Every "+slot.day+(slot.timeLabel?" "+slot.timeLabel:"")+" — "+slot.sessionsBlocked.join(", ")+(slot.note?" ("+slot.note+")":"")]));
+      });
+      wrap.appendChild(box);
+    }
+    wrap.appendChild(buildBookingRequestForm());
+    wrap.appendChild(buildBookingListSection());
+    return wrap;
+  }
+
+  function buildBookingRequestForm(){
+    if(!state.bookingDraft) state.bookingDraft = blankBookingDraft();
+    const d = state.bookingDraft;
+    const box = el("div",{class:"settings-box", style:"margin-bottom:22px;"});
+    box.appendChild(el("h3",{style:"font-size:16px;color:var(--green-deep);margin-bottom:14px;"},["Request a rink"]));
+
+    const win = state.club.bookingWindowStart || state.club.bookingWindowEnd;
+    if(win){
+      box.appendChild(el("div",{style:"font-size:12.5px;color:var(--ink-soft);background:rgba(30,77,58,0.06);"+
+        "border-radius:8px;padding:9px 12px;margin-bottom:14px;line-height:1.5;"},[
+        "Bookings are open for "+
+        (state.club.bookingWindowStart ? fmtDateLong(state.club.bookingWindowStart) : "any date")+
+        " to "+
+        (state.club.bookingWindowEnd ? fmtDateLong(state.club.bookingWindowEnd) : "any date")+"."
+      ]));
+    }
+
+    const two = el("div",{class:"two-col"});
+    two.appendChild(el("div",{class:"field"},[
+      el("label",{},["Date"]),
+      el("input",{type:"date", value:d.date, min:state.club.bookingWindowStart||null, max:state.club.bookingWindowEnd||null,
+        oninput:(e)=>{ d.date=e.target.value; }})
+    ]));
+    two.appendChild(el("div",{class:"field"},[
+      el("label",{},["Session"]),
+      (function(){
+        const sel = el("select",{onchange:(e)=>{ d.session=e.target.value; }});
+        SESSIONS.forEach(s=> sel.appendChild(el("option",{value:s, selected:d.session===s?"selected":null},[s])));
+        return sel;
+      })()
+    ]));
+    box.appendChild(two);
+
+    const two2 = el("div",{class:"two-col"});
+    two2.appendChild(el("div",{class:"field"},[
+      el("label",{},["Rink"]),
+      (function(){
+        const sel = el("select",{onchange:(e)=>{ d.rink=e.target.value; }});
+        for(let n=1;n<=(state.club.rinkCount||4);n++) sel.appendChild(el("option",{value:String(n), selected:d.rink===String(n)?"selected":null},["Rink "+n]));
+        return sel;
+      })()
+    ]));
+    two2.appendChild(el("div",{class:"field"},[
+      el("label",{},["Your name"]),
+      el("input",{type:"text", value:d.requesterName, placeholder:"e.g. Pat Fisher",
+        oninput:(e)=>{ d.requesterName=e.target.value; }})
+    ]));
+    box.appendChild(two2);
+
+    box.appendChild(el("div",{class:"field"},[
+      el("label",{},["Purpose (optional)"]),
+      el("input",{type:"text", value:d.purpose, placeholder:"e.g. Practice, coaching, friendly roll-up",
+        oninput:(e)=>{ d.purpose=e.target.value; }})
+    ]));
+
+    if(hasApprovedClash(state.bookings, d.date, d.session, d.rink, null)){
+      box.appendChild(el("div",{style:"font-size:12.5px;color:var(--rust);font-weight:600;margin-bottom:10px;"},
+        ["Rink "+d.rink+" is already approved for that date and session — pick another rink or time, or submit anyway and let the committee sort it out."]));
+    }
+    const maintClash = maintenanceClash(d.date, d.session);
+    if(maintClash){
+      box.appendChild(el("div",{style:"font-size:12.5px;color:var(--rust);font-weight:600;margin-bottom:10px;"},
+        ["That's during weekly maintenance (every "+maintClash.day+(maintClash.timeLabel?" "+maintClash.timeLabel:"")+
+        (maintClash.note?", "+maintClash.note:"")+") — this session can't be requested then."]));
+    }
+
+    box.appendChild(el("button",{class:"btn btn-primary", onclick:submitBookingRequest},["Request booking"]));
+    return box;
+  }
+
+  async function submitBookingRequest(){
+    const d = state.bookingDraft;
+    if(!d.requesterName.trim()){ showToast("Enter your name first."); return; }
+    if(!d.date){ showToast("Choose a date."); return; }
+    if(state.club.bookingWindowStart && d.date < state.club.bookingWindowStart){
+      showToast("Bookings don't open until "+fmtDateLong(state.club.bookingWindowStart)+"."); return;
+    }
+    if(state.club.bookingWindowEnd && d.date > state.club.bookingWindowEnd){
+      showToast("Bookings close after "+fmtDateLong(state.club.bookingWindowEnd)+"."); return;
+    }
+    const clash = maintenanceClash(d.date, d.session);
+    if(clash){
+      showToast("That's during weekly maintenance (every "+clash.day+(clash.timeLabel?" "+clash.timeLabel:"")+") — pick a different session or date."); return;
+    }
+    const booking = {
+      id: cryptoId(), date:d.date, session:d.session, rink:d.rink,
+      requesterName:d.requesterName.trim(), purpose:d.purpose.trim(),
+      status:"pending", requestedAt:new Date().toISOString(), decidedAt:null, decidedNote:""
+    };
+    const before = state.bookings;
+    const updated = [...state.bookings, booking];
+    try{
+      await saveBookings(updated);
+      state.bookings = updated;
+      state.bookingDraft = blankBookingDraft();
+      showToast("Booking requested — waiting for committee approval.");
+    }catch(err){
+      console.error(err);
+      state.bookings = before;
+      showToast("Could not save: "+(err.message||err));
+    }
+  }
+
+  function buildBookingListSection(){
+    const wrap = el("div",{});
+    const months = monthOptions(state.bookings);
+    const filtered = state.bookingMonthFilter
+      ? state.bookings.filter(b=>b.date.slice(0,7)===state.bookingMonthFilter)
+      : state.bookings;
+    const sorted = [...filtered].sort((a,b)=> a.date.localeCompare(b.date) || a.session.localeCompare(b.session));
+
+    wrap.appendChild(el("div",{class:"section-title"},[
+      el("h2",{},["Bookings"]),
+      el("span",{class:"count"},[sorted.length+" booking"+(sorted.length===1?"":"s")])
+    ]));
+    if(months.length>1){
+      const filterRow = el("div",{style:"display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;"});
+      filterRow.appendChild(el("label",{style:"margin:0;flex-shrink:0;"},["Show"]));
+      const sel = el("select",{style:"max-width:220px;", onchange:(e)=>{ state.bookingMonthFilter=e.target.value; render(); }});
+      sel.appendChild(el("option",{value:"", selected: state.bookingMonthFilter===""?"selected":null},["All bookings"]));
+      months.forEach(ym=> sel.appendChild(el("option",{value:ym, selected: state.bookingMonthFilter===ym?"selected":null},[monthLabel(ym)])));
+      filterRow.appendChild(sel);
+      wrap.appendChild(filterRow);
+    }
+    if(sorted.length===0){
+      wrap.appendChild(el("div",{class:"empty"},["No bookings yet — request one above."]));
+      return wrap;
+    }
+    sorted.forEach(b=> wrap.appendChild(buildBookingCard(b, {showCancel:true})));
+    return wrap;
+  }
+
+  function buildBookingCard(b, opts){
+    opts = opts || {};
+    const card = el("div",{class:"booking-card"});
+    const top = el("div",{class:"booking-top"});
+    top.appendChild(el("div",{},[
+      el("div",{style:"font-weight:700;font-size:14.5px;"},[fmtDateLong(b.date)]),
+      el("div",{class:"booking-meta"},[b.session+" · Rink "+b.rink+(b.purpose?" · "+b.purpose:"")])
+    ]));
+    top.appendChild(el("span",{class:"status-badge status-"+b.status},[b.status]));
+    card.appendChild(top);
+    card.appendChild(el("div",{class:"booking-meta"},["Requested by "+b.requesterName]));
+    if(b.status==="rejected" && b.decidedNote){
+      card.appendChild(el("div",{style:"font-size:12.5px;color:var(--rust);margin-top:6px;"},["Committee note: "+b.decidedNote]));
+    }
+    if(opts.showCancel){
+      card.appendChild(el("div",{style:"margin-top:10px;"},[
+        el("button",{class:"btn btn-ghost btn-sm", onclick:()=>cancelBooking(b)},["Cancel this booking"])
+      ]));
+    }
+    if(opts.approveReject){
+      const clash = hasApprovedClash(state.bookings, b.date, b.session, b.rink, b.id);
+      if(clash) card.appendChild(el("div",{style:"font-size:12px;color:var(--rust);font-weight:600;margin-top:8px;"},
+        ["Clashes with an already-approved booking on Rink "+b.rink+"."]));
+      card.appendChild(el("div",{style:"display:flex;gap:8px;margin-top:10px;"},[
+        el("button",{class:"btn btn-primary btn-sm", onclick:()=>approveBooking(b)},["Approve"]),
+        el("button",{class:"btn btn-rust btn-sm", onclick:()=>openRejectModal(b)},["Reject"])
+      ]));
+    }
+    return card;
+  }
+
+  async function cancelBooking(b){
+    if(!(await askConfirm("Cancel this booking request for "+b.requesterName+" on "+fmtDateLong(b.date)+"?"))) return;
+    const before = state.bookings;
+    const updated = state.bookings.filter(x=>x.id!==b.id);
+    try{
+      await saveBookings(updated);
+      state.bookings = updated;
+      showToast("Booking cancelled.");
+    }catch(err){
+      console.error(err);
+      state.bookings = before;
+      showToast("Could not cancel: "+(err.message||err));
+    }
+  }
+
+  // ---------- COMMITTEE APPROVAL QUEUE ----------
+  function buildCommitteeQueue(){
+    const wrap = el("div",{});
+    const pending = state.bookings.filter(b=>b.status==="pending").sort((a,b)=>a.date.localeCompare(b.date));
+    const decided = state.bookings.filter(b=>b.status!=="pending").sort((a,b)=> (b.decidedAt||"").localeCompare(a.decidedAt||""));
+
+    wrap.appendChild(el("div",{class:"section-title"},[
+      el("h2",{},["Pending requests"]),
+      el("span",{class:"count"},[pending.length+" waiting"])
+    ]));
+    if(pending.length===0){
+      wrap.appendChild(el("div",{class:"empty"},["Nothing waiting on you right now."]));
+    }else{
+      pending.forEach(b=> wrap.appendChild(buildBookingCard(b, {approveReject:true})));
+    }
+
+    wrap.appendChild(el("div",{class:"section-title"},[
+      el("h2",{},["Recent decisions"]),
+      el("span",{class:"count"},[String(decided.length)])
+    ]));
+    if(decided.length===0){
+      wrap.appendChild(el("div",{class:"empty"},["No decisions made yet."]));
+    }else{
+      decided.slice(0,20).forEach(b=> wrap.appendChild(buildBookingCard(b, {})));
+    }
+    return wrap;
+  }
+
+  async function approveBooking(b){
+    const before = state.bookings;
+    const updated = state.bookings.map(x=> x.id===b.id ? {...x, status:"approved", decidedAt:new Date().toISOString(), decidedNote:""} : x);
+    try{
+      await saveBookings(updated);
+      state.bookings = updated;
+      showToast("Booking approved.");
+    }catch(err){
+      console.error(err);
+      state.bookings = before;
+      showToast("Could not save: "+(err.message||err));
+    }
+  }
+  function openRejectModal(b){
+    state.rejectTarget = b.id;
+    state.rejectReasonText = "";
+    render();
+  }
+  function closeRejectModal(){
+    state.rejectTarget = null;
+    state.rejectReasonText = "";
+    render();
+  }
+  function buildRejectModal(){
+    const b = state.bookings.find(x=>x.id===state.rejectTarget);
+    const backdrop = el("div",{class:"modal-backdrop", onclick:(e)=>{ if(e.target===backdrop) closeRejectModal(); }});
+    const modal = el("div",{class:"modal", style:"max-width:400px;"});
+    modal.appendChild(el("h3",{},["Reject booking"]));
+    if(b) modal.appendChild(el("p",{style:"font-size:13.5px;color:var(--ink-soft);margin:0 0 14px;line-height:1.5;"},
+      [fmtDateLong(b.date)+" · "+b.session+" · Rink "+b.rink+" · "+b.requesterName]));
+    modal.appendChild(el("div",{class:"field"},[
+      el("label",{},["Reason (optional, shown to the requester)"]),
+      el("input",{type:"text", value:state.rejectReasonText, placeholder:"e.g. Rink already booked for a fixture",
+        oninput:(e)=>{ state.rejectReasonText = e.target.value; }})
+    ]));
+    const actions = el("div",{class:"modal-actions"});
+    actions.appendChild(el("button",{class:"btn btn-ghost", onclick:closeRejectModal},["Cancel"]));
+    actions.appendChild(el("button",{class:"btn btn-rust", onclick:submitReject},["Reject booking"]));
+    modal.appendChild(actions);
+    backdrop.appendChild(modal);
+    return backdrop;
+  }
+  async function submitReject(){
+    const id = state.rejectTarget;
+    const note = state.rejectReasonText.trim();
+    const before = state.bookings;
+    const updated = state.bookings.map(x=> x.id===id ? {...x, status:"rejected", decidedAt:new Date().toISOString(), decidedNote:note} : x);
+    try{
+      await saveBookings(updated);
+      state.bookings = updated;
+      closeRejectModal();
+      showToast("Booking rejected.");
+    }catch(err){
+      console.error(err);
+      state.bookings = before;
+      showToast("Could not save: "+(err.message||err));
+    }
+  }
+
+  // ---------- MATCH LIST ----------
+  function buildMatchList(){
+    const wrap = el("div",{});
+    const months = monthOptions(state.matches);
+    const filtered = state.monthFilter
+      ? state.matches.filter(m=> m.date.slice(0,7)===state.monthFilter)
+      : state.matches;
+
+    wrap.appendChild(el("div",{class:"section-title"},[
+      el("h2",{},["Fixtures"]),
+      el("span",{class:"count"},[filtered.length+" match"+(filtered.length===1?"":"es")+(state.monthFilter?" in "+monthLabel(state.monthFilter):"")])
+    ]));
+
+    if(months.length>1){
+      const filterRow = el("div",{style:"display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;"});
+      filterRow.appendChild(el("label",{style:"margin:0;flex-shrink:0;"},["Show"]));
+      const sel = el("select",{style:"max-width:220px;", onchange:(e)=>{ state.monthFilter = e.target.value; render(); }});
+      sel.appendChild(el("option",{value:"", selected: state.monthFilter===""?"selected":null},["All fixtures"]));
+      months.forEach(ym=> sel.appendChild(el("option",{value:ym, selected: state.monthFilter===ym?"selected":null},[monthLabel(ym)])));
+      filterRow.appendChild(sel);
+      wrap.appendChild(filterRow);
+    }
+
+    if(filtered.length===0){
+      wrap.appendChild(el("div",{class:"empty"},[
+        state.matches.length===0
+          ? (state.role==="admin" ? "No fixtures yet — add the first one below." : "No fixtures have been posted yet.")
+          : "No fixtures in "+monthLabel(state.monthFilter)+"."
+      ]));
+      return wrap;
+    }
+    filtered.forEach(m=> wrap.appendChild(buildMatchCard(m)));
+    return wrap;
+  }
+  function monthOptions(matches){
+    const set = new Set(matches.map(m=>m.date.slice(0,7)));
+    return Array.from(set).sort();
+  }
+  function monthLabel(ym){
+    const dt = new Date(ym+"-01T00:00:00");
+    if(isNaN(dt)) return ym;
+    return dt.toLocaleDateString("en-GB",{month:"long", year:"numeric"});
+  }
+
+  function buildMatchCard(m){
+    const isPast = m.date < todayStr;
+    const card = el("div",{class:"match-card"+(isPast?" past":"")});
+    const badge = fmtDateBadge(m.date);
+    const head = el("div",{class:"match-head"},[
+      el("div",{class:"date-badge"},[el("div",{class:"d"},[badge.d]), el("div",{class:"m"},[badge.m])]),
+      el("div",{class:"match-head-info", style:"flex:1;"},[
+        el("h3",{},[(m.homeAway==="Home"?"vs ":"at ")+m.opponent]),
+        el("div",{class:"meta"},[fmtDateLong(m.date)+(m.time?" · "+m.time:"")])
+      ])
+    ]);
+    if(state.role==="admin"){
+      const adminBtns = el("div",{style:"display:flex;gap:6px;flex-shrink:0;"});
+      adminBtns.appendChild(el("button",{class:"btn btn-sm", style:"background:rgba(255,255,255,0.16);color:var(--card);",
+        onclick:()=>openEditMatch(m)},["Edit"]));
+      adminBtns.appendChild(el("button",{class:"btn btn-sm", style:"background:rgba(156,74,52,0.55);color:var(--card);",
+        onclick:()=>confirmDeleteMatch(m)},["Delete"]));
+      head.appendChild(adminBtns);
+    }
+    card.appendChild(head);
+
+    const body = el("div",{class:"match-body"});
+    const league = matchLeague(m);
+    const gridItems = [
+      detailItem("Home / Away", m.homeAway),
+      detailItem("Type", m.matchType || "—"),
+      detailItem("Dress", m.kit || "—"),
+      detailItem("Rinks", String(m.rinks||"—")),
+      detailItem("Format", m.format || "—"),
+      detailItem("Match captain", m.captainName ? (m.captainName + (m.captainContact? " ("+m.captainContact+")" : "")) : "—"),
+    ];
+    if(league) gridItems.push(detailItem("League", league.leagueName + (league.teamName? " — "+league.teamName : "")));
+    const grid = el("div",{class:"detail-grid"}, gridItems);
+    body.appendChild(grid);
+    body.appendChild(el("hr",{class:"boundary"}));
+
+    // availability
+    body.appendChild(el("div",{style:"font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;margin-bottom:8px;"},
+      ["Available ("+m.availability.length+")"]));
+    if(m.availability.length===0){
+      body.appendChild(el("div",{style:"font-size:13.5px;color:var(--ink-soft);margin-bottom:10px;"},["No one has put their name down yet."]));
+    }else{
+      const list = el("div",{class:"avail-list"});
+      m.availability.forEach(a=>{
+        const chip = el("span",{class:"chip"},[bowlBadge(a.position), el("span",{},[a.name])]);
+        if(state.role==="player" || state.role==="admin"){
+          chip.appendChild(el("button",{class:"x", title:"Remove", onclick:()=>removeAvailability(m,a.id)},["✕"]));
+        }
+        list.appendChild(chip);
+      });
+      body.appendChild(list);
+    }
+
+    // team sheet if selection exists
+    if(m.selection){
+      body.appendChild(buildTeamSheet(m));
+    }
+
+    // role actions
+    const rowActions = el("div",{class:"row-actions"});
+    if(state.role==="player"){
+      const isOpen = state.expanded[m.id]==="avail";
+      rowActions.appendChild(el("button",{class:"btn btn-ghost btn-sm", onclick:()=>{
+        state.expanded[m.id] = isOpen? null : "avail";
+        state.availDraft = {name:"", position:"1"};
+        render();
+      }},[isOpen? "Cancel" : "Put my name down"]));
+    }
+    if(state.role==="captain"){
+      const isOpen = state.expanded[m.id]==="select";
+      rowActions.appendChild(el("button",{class:"btn btn-brass btn-sm", onclick:()=>{
+        if(isOpen){ state.expanded[m.id]=null; state.selDraft=null; }
+        else{ state.expanded[m.id]="select"; state.selDraft = buildSelDraft(m); }
+        render();
+      }},[isOpen? "Close selection" : (m.selection? "Edit selection" : "Select team")]));
+    }
+    if(rowActions.childNodes.length) body.appendChild(rowActions);
+
+    if(state.role==="player" && state.expanded[m.id]==="avail"){
+      body.appendChild(buildAvailForm(m));
+    }
+    if(state.role==="captain" && state.expanded[m.id]==="select"){
+      body.appendChild(buildSelectPanel(m));
+    }
+
+    card.appendChild(body);
+    return card;
+  }
+
+  function detailItem(k,v){
+    return el("div",{class:"detail-item"},[el("div",{class:"k"},[k]), el("div",{class:"v"},[v])]);
+  }
+  function matchLeague(m){
+    if(m.leagueId===null || m.leagueId===undefined) return null;
+    const l = state.leagues[m.leagueId];
+    if(!l || !l.leagueName.trim()) return null;
+    return l;
+  }
+
+  function buildTeamSheet(m){
+    const box = el("div",{class:"teamsheet"});
+    box.appendChild(el("h4",{},["Team sheet"]));
+    if(m.captainName){
+      box.appendChild(el("div",{style:"font-size:12.5px;color:var(--ink-soft);font-weight:600;margin-bottom:10px;"},
+        ["Match captain: "+m.captainName + (m.captainContact? " · "+m.captainContact : "")]));
+    }
+    const byRink = {};
+    m.selection.players.forEach(p=>{
+      const r = p.rink || "1";
+      if(!byRink[r]) byRink[r] = [];
+      byRink[r].push(p);
+    });
+    const rinkKeys = Object.keys(byRink).sort((a,b)=>Number(a)-Number(b));
+    rinkKeys.forEach(r=>{
+      const grp = el("div",{class:"rink-group"});
+      grp.appendChild(el("h5",{},["Game "+r]));
+      const ul = el("ul",{class:"ts-list"});
+      byRink[r].forEach(p=>{
+        ul.appendChild(el("li",{},[bowlBadge(p.position), el("span",{},[p.name])]));
+      });
+      grp.appendChild(ul);
+      box.appendChild(grp);
+    });
+    if(m.selection.reserves.length){
+      const rul = el("ul",{class:"ts-list", style:"margin-top:8px;"});
+      m.selection.reserves.forEach(p=>{
+        rul.appendChild(el("li",{},[bowlBadge(p.position), el("span",{},[p.name]), el("span",{class:"reserve-tag"},["Reserve"])]));
+      });
+      box.appendChild(rul);
+    }
+    box.appendChild(el("div",{class:"ts-saved"},["Saved "+new Date(m.selection.savedAt).toLocaleString("en-GB")]));
+    return box;
+  }
+
+  function buildAvailForm(m){
+    const box = el("div",{class:"inline-form"});
+    const league = matchLeague(m);
+    const fr = el("div",{class:"fr"});
+
+    if(league && league.players.length){
+      const already = new Set(m.availability.map(a=>a.name));
+      const eligible = league.players.filter(p=>!already.has(p));
+      fr.appendChild(el("div",{class:"field"},[
+        el("label",{},["Your name — "+league.leagueName+" registered players only"]),
+        (function(){
+          const sel = el("select",{onchange:(e)=>{ state.availDraft.name = e.target.value; }});
+          sel.appendChild(el("option",{value:""},["Choose your name…"]));
+          eligible.forEach(p=> sel.appendChild(el("option",{value:p, selected: state.availDraft.name===p?"selected":null},[p])));
+          if(eligible.length===0) sel.appendChild(el("option",{value:"", disabled:"disabled"},["Everyone registered is already down"]));
+          return sel;
+        })()
+      ]));
+    }else{
+      if(league) fr.appendChild(el("div",{style:"font-size:12.5px;color:var(--rust);font-weight:600;width:100%;margin-bottom:4px;"},
+        ["No players are registered for "+league.leagueName+" yet — ask your fixture secretary, or enter your name below."]));
+      fr.appendChild(el("div",{class:"field"},[
+        el("label",{},["Your name"]),
+        el("input",{type:"text", value:state.availDraft.name, placeholder:"e.g. Pat Fisher",
+          oninput:(e)=>{ state.availDraft.name = e.target.value; }})
+      ]));
+    }
+
+    const posBox = el("div",{class:"field", style:"max-width:180px;"},[
+      el("label",{},["Preferred position"]),
+    ]);
+    const choice = el("div",{class:"pos-choice"});
+    Object.keys(POSITIONS).forEach(p=>{
+      choice.appendChild(el("button",{class:"pos-btn"+(state.availDraft.position===p?" active":""),
+        onclick:()=>{ state.availDraft.position=p; render(); }},[p]));
+    });
+    posBox.appendChild(choice);
+    fr.appendChild(posBox);
+    box.appendChild(fr);
+    box.appendChild(el("button",{class:"btn btn-primary btn-sm", style:"margin-top:12px;", onclick:()=>addAvailability(m)},["Add me to the list"]));
+    return box;
+  }
+
+  async function addAvailability(m){
+    const name = state.availDraft.name.trim();
+    if(!name){ showToast("Enter your name first."); return; }
+    const entry = {id: cryptoId(), name, position: state.availDraft.position};
+    m.availability.push(entry);
+    try{
+      await saveMatch(m);
+      state.expanded[m.id] = null;
+      showToast("Added "+name+" to the availability list.");
+    }catch(err){
+      console.error(err);
+      m.availability = m.availability.filter(a=>a.id!==entry.id);
+      showToast("Could not save: "+(err.message||err));
+    }
+  }
+  async function removeAvailability(m, entryId){
+    const entry = m.availability.find(a=>a.id===entryId);
+    if(!(await askConfirm("Remove "+(entry?entry.name:"this entry")+" from availability?"))) return;
+    const before = m.availability;
+    m.availability = m.availability.filter(a=>a.id!==entryId);
+    try{
+      await saveMatch(m);
+      showToast("Removed from availability.");
+    }catch(err){
+      console.error(err);
+      m.availability = before;
+      showToast("Could not save: "+(err.message||err));
+    }
+  }
+
+  // ---------- CAPTAIN selection ----------
+  function buildSelDraft(m){
+    const d = {};
+    m.availability.forEach(a=>{
+      let status="none", position=a.position, rink="1";
+      if(m.selection){
+        const inPlayers = m.selection.players.find(p=>p.name===a.name);
+        const inReserve = m.selection.reserves.find(p=>p.name===a.name);
+        if(inPlayers){ status="playing"; position=inPlayers.position; rink=inPlayers.rink||"1"; }
+        else if(inReserve){ status="reserve"; position=inReserve.position; rink=inReserve.rink||"1"; }
+      }
+      d[a.id] = {status, position, rink};
+    });
+    return d;
+  }
+
+  function buildSelectPanel(m){
+    const box = el("div",{class:"inline-form"});
+    if(m.availability.length===0){
+      box.appendChild(el("div",{style:"font-size:13.5px;color:var(--ink-soft);"},["No players are available yet — nothing to select."]));
+      return box;
+    }
+    const rinkCount = rinkCountForMatch(m);
+    box.appendChild(el("div",{style:"font-size:12px;color:var(--ink-soft);margin-bottom:10px;"},
+      ["Up to "+rinkCount+" game"+(rinkCount===1?"":"s")+", "+MAX_PLAYERS_PER_RINK+" players per game."]));
+    m.availability.forEach(a=>{
+      const d = state.selDraft[a.id];
+      const row = el("div",{class:"sel-row"});
+      row.appendChild(el("div",{class:"sel-name"},[bowlBadge(a.position), el("span",{},[a.name])]));
+      const seg = el("div",{class:"seg"});
+      seg.appendChild(el("button",{class:d.status==="none"?"":"", onclick:()=>{ d.status="none"; render(); }},["—"]));
+      seg.appendChild(el("button",{class:d.status==="playing"?"on-playing":"", onclick:()=>{ d.status="playing"; render(); }},["Playing"]));
+      seg.appendChild(el("button",{class:d.status==="reserve"?"on-reserve":"", onclick:()=>{ d.status="reserve"; render(); }},["Reserve"]));
+      row.appendChild(seg);
+      const posSel = el("select",{class:"pos-select", onchange:(e)=>{ d.position = e.target.value; }});
+      Object.keys(POSITIONS).forEach(p=>{
+        posSel.appendChild(el("option",{value:p, selected: d.position===p ? "selected": null},[p]));
+      });
+      row.appendChild(posSel);
+      const rinkSel = el("select",{class:"pos-select", style:"width:88px;", onchange:(e)=>{ d.rink = e.target.value; }});
+      for(let n=1;n<=rinkCount;n++){
+        rinkSel.appendChild(el("option",{value:String(n), selected: d.rink===String(n)?"selected":null},["Game "+n]));
+      }
+      row.appendChild(rinkSel);
+      box.appendChild(row);
+    });
+    const saveRow = el("div",{style:"display:flex;justify-content:flex-end;margin-top:12px;"});
+    saveRow.appendChild(el("button",{class:"btn btn-brass btn-sm", onclick:()=>saveSelection(m)},["Save team sheet"]));
+    box.appendChild(saveRow);
+    return box;
+  }
+
+  async function saveSelection(m){
+    const players=[], reserves=[];
+    m.availability.forEach(a=>{
+      const d = state.selDraft[a.id];
+      if(d.status==="playing") players.push({name:a.name, position:d.position, rink:d.rink||"1"});
+      else if(d.status==="reserve") reserves.push({name:a.name, position:d.position, rink:d.rink||"1"});
+    });
+    if(players.length===0){ if(!(await askConfirm("No players marked as Playing — save anyway?"))) return; }
+    const counts = {};
+    players.forEach(p=>{ counts[p.rink] = (counts[p.rink]||0)+1; });
+    const overfull = Object.keys(counts).filter(r=>counts[r]>MAX_PLAYERS_PER_RINK);
+    if(overfull.length){
+      const list = overfull.map(r=>"Game "+r+" has "+counts[r]).join(", ");
+      if(!(await askConfirm(list+" — more than "+MAX_PLAYERS_PER_RINK+" players per game. Save anyway?"))) return;
+    }
+    const before = m.selection;
+    m.selection = {players, reserves, savedAt: new Date().toISOString()};
+    try{
+      await saveMatch(m);
+      state.expanded[m.id] = null;
+      state.selDraft = null;
+      showToast("Team sheet saved.");
+    }catch(err){
+      console.error(err);
+      m.selection = before;
+      showToast("Could not save: "+(err.message||err));
+    }
+  }
+
+  // ---------- ADMIN: add / edit / delete ----------
+  function blankMatchDraft(){
+    return {id:null, date:todayStr, opponent:"", homeAway:"Home", time:"", matchType:"", kit:"Club", rinks:String(state.club.rinkCount||4), format:"", captainName:"", captainContact:"", leagueId:""};
+  }
+  function buildAdminAdd(){
+    const btn = el("button",{class:"btn btn-primary", style:"width:100%;", onclick:()=>{
+      state.modal="addMatch"; state.modalDraft = blankMatchDraft(); render();
+    }},["+ Add fixture"]);
+    const container = el("div",{style:"margin-bottom:22px;"});
+    container.appendChild(btn);
+    return container;
+  }
+  function openEditMatch(m){
+    state.modal="editMatch";
+    state.modalDraft = {id:m.id, date:m.date, opponent:m.opponent, homeAway:m.homeAway, time:m.time,
+      matchType:m.matchType, kit:m.kit, rinks:String(m.rinks), format:m.format,
+      captainName:m.captainName||"", captainContact:m.captainContact||"", leagueId: m.leagueId!=null?String(m.leagueId):""};
+    render();
+  }
+  async function confirmDeleteMatch(m){
+    if(!(await askConfirm("Delete the fixture vs "+m.opponent+" on "+m.date+"? This cannot be undone."))) return;
+    try{
+      await deleteMatchStorage(m.id);
+      state.matches = state.matches.filter(x=>x.id!==m.id);
+      showToast("Fixture deleted.");
+    }catch(err){
+      console.error(err);
+      showToast("Could not delete: "+(err.message||err));
+    }
+  }
+
+  function buildModal(){
+    const isEdit = state.modal==="editMatch";
+    const d = state.modalDraft;
+    const backdrop = el("div",{class:"modal-backdrop", onclick:(e)=>{ if(e.target===backdrop) closeModal(); }});
+    const modal = el("div",{class:"modal"});
+    modal.appendChild(el("h3",{},[isEdit? "Edit fixture" : "Add fixture"]));
+
+    const two = el("div",{class:"two-col"});
+    two.appendChild(fieldInput("Date","date",d.date,"date"));
+    two.appendChild(fieldInput("Time","time",d.time,"text","e.g. 2:00pm"));
+    modal.appendChild(two);
+
+    modal.appendChild(fieldInput("Opponent club","opponent",d.opponent,"text","e.g. Hatfield Town"));
+
+    const two2 = el("div",{class:"two-col"});
+    two2.appendChild(fieldSelect("Home / Away","homeAway",d.homeAway,["Home","Away"]));
+    two2.appendChild(fieldSelect("Dress","kit",d.kit,["Club","Whites"]));
+    modal.appendChild(two2);
+
+    modal.appendChild(fieldInput("Match type","matchType",d.matchType,"text","e.g. League, Friendly, Cup"));
+    modal.appendChild(el("div",{style:"font-size:11.5px;color:var(--ink-soft);margin:-10px 0 14px;line-height:1.4;"},[
+      "Just a label — doesn't restrict sign-up. Use the League field below for that."
+    ]));
+
+    const two3 = el("div",{class:"two-col"});
+    two3.appendChild(fieldInput("Number of rinks","rinks",d.rinks,"number"));
+    two3.appendChild(fieldInput("Format","format",d.format,"text","e.g. Mens triples"));
+    modal.appendChild(two3);
+
+    const two4 = el("div",{class:"two-col"});
+    two4.appendChild(fieldInput("Match captain","captainName",d.captainName,"text","e.g. Pat Fisher"));
+    two4.appendChild(fieldInput("Captain contact","captainContact",d.captainContact,"text","phone or email"));
+    modal.appendChild(two4);
+
+    const activeLeagues = state.leagues.map((l,idx)=>({...l, idx})).filter(l=>l.leagueName.trim());
+    if(activeLeagues.length){
+      const leagueField = el("div",{class:"field"},[
+        el("label",{},["League (restricts sign-up to that league's registered players)"])
+      ]);
+      const sel = el("select",{onchange:(e)=>{ state.modalDraft.leagueId = e.target.value; }});
+      sel.appendChild(el("option",{value:"", selected: d.leagueId===""?"selected":null},["None — open sign-up"]));
+      activeLeagues.forEach(l=>{
+        sel.appendChild(el("option",{value:String(l.idx), selected: d.leagueId===String(l.idx)?"selected":null},
+          [l.leagueName + (l.teamName? " — "+l.teamName : "")]));
+      });
+      leagueField.appendChild(sel);
+      modal.appendChild(leagueField);
+    }else{
+      modal.appendChild(el("div",{style:"font-size:12.5px;color:var(--ink-soft);background:rgba(30,77,58,0.06);"+
+        "border-radius:8px;padding:9px 12px;margin-bottom:6px;line-height:1.5;"},[
+        "No leagues are set up yet, so sign-up stays open to anyone. Add one under Reg. Players (fill in its League name) to restrict this fixture to a registered list."
+      ]));
+    }
+
+    const actions = el("div",{class:"modal-actions"});
+    actions.appendChild(el("button",{class:"btn btn-ghost", onclick:closeModal},["Cancel"]));
+    actions.appendChild(el("button",{class:"btn btn-primary", onclick:()=>submitModal(isEdit)},[isEdit?"Save changes":"Add fixture"]));
+    modal.appendChild(actions);
+
+    backdrop.appendChild(modal);
+    return backdrop;
+  }
+  function fieldInput(label,key,value,type,placeholder,draft){
+    draft = draft || state.modalDraft;
+    return el("div",{class:"field"},[
+      el("label",{},[label]),
+      el("input",{type:type||"text", value:value, placeholder:placeholder||"",
+        oninput:(e)=>{ draft[key]=e.target.value; }})
+    ]);
+  }
+  function fieldSelect(label,key,value,options){
+    const sel = el("select",{onchange:(e)=>{ state.modalDraft[key]=e.target.value; }});
+    options.forEach(o=> sel.appendChild(el("option",{value:o, selected: value===o?"selected":null},[o])));
+    return el("div",{class:"field"},[el("label",{},[label]), sel]);
+  }
+  function closeModal(){ state.modal=null; state.modalDraft=null; render(); }
+
+  async function submitModal(isEdit){
+    const d = state.modalDraft;
+    if(!d.opponent.trim()){ showToast("Enter the opponent club."); return; }
+    if(!d.date){ showToast("Enter the match date."); return; }
+    try{
+      if(isEdit){
+        const m = state.matches.find(x=>x.id===d.id);
+        const before = {...m};
+        Object.assign(m, {date:d.date, opponent:d.opponent.trim(), homeAway:d.homeAway, time:d.time,
+          matchType:d.matchType, kit:d.kit, rinks:Number(d.rinks)||0, format:d.format,
+          captainName:d.captainName.trim(), captainContact:d.captainContact.trim(),
+          leagueId: d.leagueId===""? null : Number(d.leagueId)});
+        try{
+          await saveMatch(m);
+        }catch(err){
+          Object.assign(m, before);
+          throw err;
+        }
+        state.matches.sort((a,b)=>a.date.localeCompare(b.date));
+        showToast("Fixture updated.");
+      }else{
+        const m = {id:cryptoId(), date:d.date, opponent:d.opponent.trim(), homeAway:d.homeAway, time:d.time,
+          matchType:d.matchType, kit:d.kit, rinks:Number(d.rinks)||0, format:d.format,
+          captainName:d.captainName.trim(), captainContact:d.captainContact.trim(),
+          leagueId: d.leagueId===""? null : Number(d.leagueId),
+          availability:[], selection:null};
+        await saveMatch(m);
+        const idx = await loadIndex();
+        idx.push(m.id);
+        await saveIndex(idx);
+        state.matches.push(m);
+        state.matches.sort((a,b)=>a.date.localeCompare(b.date));
+        showToast("Fixture added.");
+      }
+      closeModal();
+    }catch(err){
+      console.error(err);
+      showToast("Could not save the fixture: "+(err.message||err));
+    }
+  }
+
+  function exportData(){
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      config: state.config,
+      leagues: state.leagues,
+      club: state.club,
+      officers: state.officers,
+      bookings: state.bookings,
+      maintenanceSlots: state.maintenanceSlots,
+      matches: state.matches
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "bowls-availability-backup-"+todayStr+".json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast("Backup file downloaded.");
+  }
+
+  async function importData(file){
+    let payload;
+    try{
+      const text = await file.text();
+      payload = JSON.parse(text);
+    }catch(err){
+      showToast("That file doesn't look like a valid backup.");
+      return;
+    }
+    if(!payload || !Array.isArray(payload.matches)){
+      showToast("That file doesn't look like a valid backup.");
+      return;
+    }
+    if(!(await askConfirm("Import this backup? It will replace everything currently shown (fixtures, availability, team sheets, leagues and passwords)."))) return;
+
+    const config = payload.config && payload.config.adminPassword
+      ? {adminPassword:payload.config.adminPassword, captainPassword:payload.config.captainPassword||"2",
+         playerPassword:payload.config.playerPassword||"1", committeePassword:payload.config.committeePassword||"4"}
+      : {adminPassword:"3", captainPassword:"2", playerPassword:"1", committeePassword:"4"};
+    const club = (payload.club && payload.club.clubName)
+      ? {clubName: payload.club.clubName, logoDataUrl: payload.club.logoDataUrl||"",
+         rinkCount: (payload.club.rinkCount>=4 && payload.club.rinkCount<=8) ? payload.club.rinkCount : 4,
+         bookingWindowStart: payload.club.bookingWindowStart||"", bookingWindowEnd: payload.club.bookingWindowEnd||""}
+      : blankClub();
+    const officers = Array.isArray(payload.officers)
+      ? payload.officers.filter(o=>o && o.role && o.name).map(o=>({id:o.id||cryptoId(), role:o.role||"", name:o.name||"", phone:o.phone||"", email:o.email||""}))
+      : [];
+    const bookings = Array.isArray(payload.bookings)
+      ? payload.bookings.filter(b=>b && b.date).map(b=>({
+          id:b.id||cryptoId(), date:b.date, session:b.session||"Morning", rink:b.rink||"1",
+          requesterName:b.requesterName||"", purpose:b.purpose||"",
+          status: ["pending","approved","rejected"].includes(b.status) ? b.status : "pending",
+          requestedAt:b.requestedAt||new Date().toISOString(), decidedAt:b.decidedAt||null, decidedNote:b.decidedNote||""
+        }))
+      : [];
+    const maintenanceSlots = Array.isArray(payload.maintenanceSlots)
+      ? payload.maintenanceSlots.filter(s=>s && DAY_ORDER.includes(s.day)).map(s=>({
+          id:s.id||cryptoId(), day:s.day, timeLabel:s.timeLabel||"",
+          sessionsBlocked: Array.isArray(s.sessionsBlocked) ? s.sessionsBlocked.filter(x=>SESSIONS.includes(x)) : [],
+          note:s.note||""
+        }))
+      : [];
+    const leagues = blankLeagues();
+    if(Array.isArray(payload.leagues)){
+      for(let i=0;i<6;i++) if(payload.leagues[i]) leagues[i] = {
+        leagueName: payload.leagues[i].leagueName||"", teamName: payload.leagues[i].teamName||"", players: payload.leagues[i].players||[]
+      };
+    }
+    const matches = payload.matches.map(m=>({
+      id: m.id || cryptoId(), date:m.date, opponent:m.opponent||"", homeAway:m.homeAway||"Home",
+      time:m.time||"", matchType:m.matchType||"", kit:m.kit||"Club",
+      rinks:m.rinks||0, format:m.format||"", captainName:m.captainName||"", captainContact:m.captainContact||"",
+      leagueId: (m.leagueId===0||m.leagueId) ? m.leagueId : null,
+      availability: m.availability||[], selection: m.selection||null
+    })).sort((a,b)=>a.date.localeCompare(b.date));
+
+    try{
+      await saveConfig(config);
+      await saveLeagues(leagues);
+      await saveClub(club);
+      await saveOfficers(officers);
+      await saveBookings(bookings);
+      await saveMaintenance(maintenanceSlots);
+      for(const m of matches) await saveMatch(m);
+      await saveIndex(matches.map(m=>m.id));
+      state.config = config;
+      state.leagues = leagues;
+      state.club = club;
+      state.officers = officers;
+      state.bookings = bookings;
+      state.maintenanceSlots = maintenanceSlots;
+      state.matches = matches;
+      state.settingsDraft = null;
+      state.leaguesDraft = null;
+      state.clubDraft = null;
+      document.title = state.club.clubName + " — Availability & Selection";
+      showToast("Backup imported — "+matches.length+" fixture"+(matches.length===1?"":"s")+" loaded.");
+    }catch(err){
+      console.error(err);
+      showToast("Could not import: "+(err.message||err));
+    }
+  }
+
+  function cryptoId(){
+    if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return "id-"+Date.now()+"-"+Math.random().toString(16).slice(2);
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>
