@@ -264,12 +264,14 @@
   "use strict";
 
   const POSITIONS = {"1":{label:"Lead",cls:"bowl-1"}, "2":{label:"Second",cls:"bowl-2"}, "3":{label:"Third",cls:"bowl-3"}, "S":{label:"Skip",cls:"bowl-S"}};
-  const MAX_RINKS_FOR_SELECTION = 6;
+  const MAX_RINKS_FOR_SELECTION = 7;
   const MAX_PLAYERS_PER_RINK = 4;
   function rinkCountForMatch(m){
-    const n = Number(m.rinks);
-    if(!n || n<1) return MAX_RINKS_FOR_SELECTION;
-    return Math.min(n, MAX_RINKS_FOR_SELECTION);
+    // Always offer the full range of games regardless of the fixture's own
+    // "Number of rinks" field — that field describes the home green, but an
+    // away fixture may be played across more (or differently-numbered)
+    // rinks/tables, so team selection shouldn't be capped by it.
+    return MAX_RINKS_FOR_SELECTION;
   }
   const todayStr = new Date().toISOString().slice(0,10);
 
@@ -315,11 +317,14 @@
     confirmDialog:null,     // {message, resolve}
     club:null,              // {clubName, logoDataUrl, rinkCount}
     clubDraft:null,
-    adminPanel:null,        // null | 'hub' | 'branding' | 'rinks' | 'officers' | 'leagues' | 'settings'
+    adminPanel:null,        // null | 'hub' | 'branding' | 'rinks' | 'officers' | 'leagues' | 'settings' | 'notices'
     officers:[],            // [{id, role, name, phone, email}]
     officerModal:null,      // 'add' | 'edit'
     officerModalDraft:null,
-    mainView:"fixtures",    // 'fixtures' | 'bookings' | 'officers' — not used for committee role
+    notices:[],             // [{id, title, body, createdAt}]
+    noticeModal:null,       // 'add' | 'edit'
+    noticeModalDraft:null,
+    mainView:"fixtures",    // 'fixtures' | 'bookings' | 'officers' | 'notices' — not used for committee role
     bookings:[],            // [{id,date,session,rink,requesterName,purpose,status,requestedAt,decidedAt,decidedNote}]
     bookingMonthFilter:"",
     bookingDraft:null,
@@ -443,6 +448,18 @@
   async function saveOfficers(arr){
     await storage.set("officers-list", JSON.stringify(arr));
   }
+  async function loadNotices(){
+    try{
+      const r = await storage.get("notices-list");
+      const arr = JSON.parse(r.value);
+      return Array.isArray(arr) ? arr : [];
+    }catch(e){
+      return [];
+    }
+  }
+  async function saveNotices(arr){
+    await storage.set("notices-list", JSON.stringify(arr));
+  }
   async function loadBookings(){
     try{
       const r = await storage.get("bookings-list");
@@ -501,6 +518,7 @@
       state.leagues = await loadLeagues();
       state.club = await loadClub();
       state.officers = await loadOfficers();
+      state.notices = await loadNotices();
       state.bookings = await loadBookings();
       state.maintenanceSlots = await loadMaintenance();
       state.matches = await loadAllMatches();
@@ -527,6 +545,7 @@
       state.leagues = state.leagues || blankLeagues();
       state.club = state.club || blankClub();
       state.officers = state.officers || [];
+      state.notices = state.notices || [];
       state.bookings = state.bookings || [];
       state.maintenanceSlots = state.maintenanceSlots || [];
       state.matches = state.matches || [];
@@ -595,6 +614,8 @@
         wrap.appendChild(buildBookingTab());
       }else if(state.mainView==="officers"){
         wrap.appendChild(buildOfficersView());
+      }else if(state.mainView==="notices"){
+        wrap.appendChild(buildNoticesView());
       }else{
         if(state.role==="admin") wrap.appendChild(buildAdminAdd());
         wrap.appendChild(buildMatchList());
@@ -603,6 +624,7 @@
 
     if(state.modal) wrap.appendChild(buildModal());
     if(state.officerModal) wrap.appendChild(buildOfficerModal());
+    if(state.noticeModal) wrap.appendChild(buildNoticeModal());
     if(state.rejectTarget) wrap.appendChild(buildRejectModal());
     if(state.maintenanceModal) wrap.appendChild(buildMaintenanceModal());
     if(state.confirmDialog) wrap.appendChild(buildConfirmDialog());
@@ -610,8 +632,8 @@
     return wrap;
   }
   function buildViewTabs(){
-    const tabs = el("div",{style:"display:flex;gap:6px;background:rgba(30,77,58,0.07);padding:4px;border-radius:10px;margin-bottom:18px;"});
-    [["fixtures","Fixtures"],["bookings","Rink Booking"],["officers","Officers"]].forEach(([v,label])=>{
+    const tabs = el("div",{style:"display:flex;gap:6px;background:rgba(30,77,58,0.07);padding:4px;border-radius:10px;margin-bottom:18px;flex-wrap:wrap;"});
+    [["fixtures","Fixtures"],["bookings","Rink Booking"],["officers","Officers"],["notices","Notices"]].forEach(([v,label])=>{
       tabs.appendChild(el("button",{
         class:"role-tab"+(state.mainView===v?" active":""), style:"flex:1;",
         onclick:()=>{ state.mainView=v; render(); }
@@ -731,6 +753,7 @@
     {key:"branding", title:"Club Branding", desc:"Club name and logo."},
     {key:"rinks", title:"Rinks & Booking Rules", desc:"Number of rinks, booking window, weekly maintenance."},
     {key:"officers", title:"Club Officers", desc:"Chairman, secretary, treasurer and other contacts."},
+    {key:"notices", title:"Notices", desc:"Post news, events and fixture-change notices for members."},
     {key:"leagues", title:"Reg. Players", desc:"League rosters for restricted-entry fixtures."},
     {key:"settings", title:"Settings", desc:"Role passwords, backups, and starting a new season."}
   ];
@@ -758,6 +781,7 @@
     if(state.adminPanel==="branding") return buildBranding();
     if(state.adminPanel==="rinks") return buildRinksBooking();
     if(state.adminPanel==="officers") return buildOfficersAdmin();
+    if(state.adminPanel==="notices") return buildNoticesAdmin();
     if(state.adminPanel==="leagues") return buildLeagues();
     if(state.adminPanel==="settings") return buildSettings();
     return buildAdminHub();
@@ -1244,6 +1268,139 @@
     }catch(err){
       console.error(err);
       state.officers = before;
+      showToast("Could not remove: "+(err.message||err));
+    }
+  }
+
+  // ---------- NOTICES (bulletin board) ----------
+  function buildNoticesAdmin(){
+    const box = el("div",{class:"settings-box"});
+    box.appendChild(buildPanelHeader("Notices","Shown to everyone on the Notices tab — news, events, fixture changes, anything members should see."));
+
+    box.appendChild(el("button",{class:"btn btn-primary btn-sm", style:"margin-bottom:16px;", onclick:openAddNotice},["+ Add notice"]));
+
+    const sorted = [...state.notices].sort((a,b)=> b.createdAt.localeCompare(a.createdAt));
+    if(sorted.length===0){
+      box.appendChild(el("div",{class:"empty"},["No notices posted yet."]));
+      return box;
+    }
+    sorted.forEach(n=>{
+      const row = el("div",{style:"padding:12px 0;border-bottom:1px solid var(--line);"});
+      const top = el("div",{style:"display:flex;align-items:flex-start;justify-content:space-between;gap:12px;"});
+      const info = el("div",{style:"flex:1;min-width:0;"});
+      info.appendChild(el("div",{style:"font-weight:700;font-size:14.5px;"},[n.title]));
+      info.appendChild(el("div",{style:"font-size:12.5px;color:var(--ink-soft);margin-top:3px;line-height:1.5;white-space:pre-wrap;"},[n.body]));
+      info.appendChild(el("div",{style:"font-size:11px;color:var(--ink-soft);margin-top:6px;"},["Posted "+new Date(n.createdAt).toLocaleString("en-GB")]));
+      top.appendChild(info);
+      const btns = el("div",{style:"display:flex;gap:6px;flex-shrink:0;"});
+      btns.appendChild(el("button",{class:"btn btn-ghost btn-sm", onclick:()=>openEditNotice(n)},["Edit"]));
+      btns.appendChild(el("button",{class:"btn btn-rust btn-sm", onclick:()=>deleteNotice(n)},["Delete"]));
+      top.appendChild(btns);
+      row.appendChild(top);
+      box.appendChild(row);
+    });
+    return box;
+  }
+  function buildNoticesView(){
+    const wrap = el("div",{});
+    wrap.appendChild(el("div",{class:"section-title"},[
+      el("h2",{},["Notices"]),
+      el("span",{class:"count"},[state.notices.length+" posted"])
+    ]));
+    if(state.notices.length===0){
+      wrap.appendChild(el("div",{class:"empty"},["No notices have been posted yet."]));
+      return wrap;
+    }
+    const sorted = [...state.notices].sort((a,b)=> b.createdAt.localeCompare(a.createdAt));
+    sorted.forEach(n=>{
+      const card = el("div",{class:"booking-card"});
+      card.appendChild(el("div",{style:"font-weight:700;font-size:14.5px;"},[n.title]));
+      card.appendChild(el("div",{class:"booking-meta", style:"white-space:pre-wrap;margin-top:4px;"},[n.body]));
+      card.appendChild(el("div",{style:"font-size:11px;color:var(--ink-soft);margin-top:8px;"},[new Date(n.createdAt).toLocaleString("en-GB")]));
+      wrap.appendChild(card);
+    });
+    return wrap;
+  }
+  function blankNoticeDraft(){
+    return {id:null, title:"", body:"", createdAt:null};
+  }
+  function openAddNotice(){
+    state.noticeModal = "add";
+    state.noticeModalDraft = blankNoticeDraft();
+    render();
+  }
+  function openEditNotice(n){
+    state.noticeModal = "edit";
+    state.noticeModalDraft = {...n};
+    render();
+  }
+  function closeNoticeModal(){
+    state.noticeModal = null;
+    state.noticeModalDraft = null;
+    render();
+  }
+  function buildNoticeModal(){
+    const isEdit = state.noticeModal==="edit";
+    const d = state.noticeModalDraft;
+    const backdrop = el("div",{class:"modal-backdrop", onclick:(e)=>{ if(e.target===backdrop) closeNoticeModal(); }});
+    const modal = el("div",{class:"modal"});
+    modal.appendChild(el("h3",{},[isEdit?"Edit notice":"Add notice"]));
+    modal.appendChild(fieldInput("Title","title",d.title,"text","e.g. Green closed for renovation",d));
+    modal.appendChild(el("div",{class:"field"},[
+      el("label",{},["Details"]),
+      (function(){
+        const ta = document.createElement("textarea");
+        ta.rows = 5;
+        ta.value = d.body;
+        ta.style.cssText = "width:100%;font-family:Inter,sans-serif;font-size:14px;padding:9px 11px;border-radius:8px;border:1.5px solid var(--line);background:#fff;color:var(--ink);resize:vertical;";
+        ta.placeholder = "e.g. The green will be closed from Monday for its annual renovation, reopening the following Saturday.";
+        ta.addEventListener("input",(e)=>{ d.body = e.target.value; });
+        return ta;
+      })()
+    ]));
+    const actions = el("div",{class:"modal-actions"});
+    actions.appendChild(el("button",{class:"btn btn-ghost", onclick:closeNoticeModal},["Cancel"]));
+    actions.appendChild(el("button",{class:"btn btn-primary", onclick:submitNoticeModal},[isEdit?"Save changes":"Post notice"]));
+    modal.appendChild(actions);
+    backdrop.appendChild(modal);
+    return backdrop;
+  }
+  async function submitNoticeModal(){
+    const d = state.noticeModalDraft;
+    if(!d.title.trim()){ showToast("Enter a title for the notice."); return; }
+    if(!d.body.trim()){ showToast("Enter the notice details."); return; }
+    const isEdit = state.noticeModal==="edit";
+    const before = state.notices;
+    let updated;
+    if(isEdit){
+      updated = state.notices.map(n=> n.id===d.id
+        ? {id:d.id, title:d.title.trim(), body:d.body.trim(), createdAt:n.createdAt}
+        : n);
+    }else{
+      updated = [...state.notices, {id:cryptoId(), title:d.title.trim(), body:d.body.trim(), createdAt:new Date().toISOString()}];
+    }
+    try{
+      await saveNotices(updated);
+      state.notices = updated;
+      closeNoticeModal();
+      showToast(isEdit ? "Notice updated." : "Notice posted.");
+    }catch(err){
+      console.error(err);
+      state.notices = before;
+      showToast("Could not save: "+(err.message||err));
+    }
+  }
+  async function deleteNotice(n){
+    if(!(await askConfirm("Remove the notice \""+n.title+"\"?"))) return;
+    const before = state.notices;
+    const updated = state.notices.filter(x=>x.id!==n.id);
+    try{
+      await saveNotices(updated);
+      state.notices = updated;
+      showToast("Notice removed.");
+    }catch(err){
+      console.error(err);
+      state.notices = before;
       showToast("Could not remove: "+(err.message||err));
     }
   }
@@ -2038,6 +2195,7 @@
       leagues: state.leagues,
       club: state.club,
       officers: state.officers,
+      notices: state.notices,
       bookings: state.bookings,
       maintenanceSlots: state.maintenanceSlots,
       matches: state.matches
@@ -2081,6 +2239,9 @@
     const officers = Array.isArray(payload.officers)
       ? payload.officers.filter(o=>o && o.role && o.name).map(o=>({id:o.id||cryptoId(), role:o.role||"", name:o.name||"", phone:o.phone||"", email:o.email||""}))
       : [];
+    const notices = Array.isArray(payload.notices)
+      ? payload.notices.filter(n=>n && n.title).map(n=>({id:n.id||cryptoId(), title:n.title||"", body:n.body||"", createdAt:n.createdAt||new Date().toISOString()}))
+      : [];
     const bookings = Array.isArray(payload.bookings)
       ? payload.bookings.filter(b=>b && b.date).map(b=>({
           id:b.id||cryptoId(), date:b.date, session:b.session||"Morning", rink:b.rink||"1",
@@ -2115,6 +2276,7 @@
       await saveLeagues(leagues);
       await saveClub(club);
       await saveOfficers(officers);
+      await saveNotices(notices);
       await saveBookings(bookings);
       await saveMaintenance(maintenanceSlots);
       for(const m of matches) await saveMatch(m);
@@ -2123,6 +2285,7 @@
       state.leagues = leagues;
       state.club = club;
       state.officers = officers;
+      state.notices = notices;
       state.bookings = bookings;
       state.maintenanceSlots = maintenanceSlots;
       state.matches = matches;
